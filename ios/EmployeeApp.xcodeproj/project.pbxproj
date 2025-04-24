@@ -47,22 +47,22 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = EmployeeApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = EmployeeApp/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = EmployeeApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		19A246CECA3E492AA56B5112 /* InterBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterBold.ttf; path = ../src/assets/fonts/InterBold.ttf; sourceTree = "<group>"; };
+		19A246CECA3E492AA56B5112 /* InterBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterBold.ttf; path = ../src/assets/fonts/InterBold.ttf; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-EmployeeApp-EmployeeAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EmployeeApp-EmployeeAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1D8EE9F8930E4DBB974FFBDE /* InterRegular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterRegular.ttf; path = ../src/assets/fonts/InterRegular.ttf; sourceTree = "<group>"; };
+		1D8EE9F8930E4DBB974FFBDE /* InterRegular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterRegular.ttf; path = ../src/assets/fonts/InterRegular.ttf; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-EmployeeApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EmployeeApp.debug.xcconfig"; path = "Target Support Files/Pods-EmployeeApp/Pods-EmployeeApp.debug.xcconfig"; sourceTree = "<group>"; };
-		42BB89E4A6FD433297E19880 /* InterBlack.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterBlack.ttf; path = ../src/assets/fonts/InterBlack.ttf; sourceTree = "<group>"; };
+		42BB89E4A6FD433297E19880 /* InterBlack.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterBlack.ttf; path = ../src/assets/fonts/InterBlack.ttf; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-EmployeeApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EmployeeApp.release.xcconfig"; path = "Target Support Files/Pods-EmployeeApp/Pods-EmployeeApp.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-EmployeeApp-EmployeeAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EmployeeApp-EmployeeAppTests.debug.xcconfig"; path = "Target Support Files/Pods-EmployeeApp-EmployeeAppTests/Pods-EmployeeApp-EmployeeAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-EmployeeApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EmployeeApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		60F01DFE22B04EC5B01C737E /* InterMedium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterMedium.ttf; path = ../src/assets/fonts/InterMedium.ttf; sourceTree = "<group>"; };
-		73B3A530692B482696EA986E /* InterSemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterSemiBold.ttf; path = ../src/assets/fonts/InterSemiBold.ttf; sourceTree = "<group>"; };
-		7DA0BA3FBB2744DAB4888EE0 /* InterExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterExtraLight.ttf; path = ../src/assets/fonts/InterExtraLight.ttf; sourceTree = "<group>"; };
+		60F01DFE22B04EC5B01C737E /* InterMedium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterMedium.ttf; path = ../src/assets/fonts/InterMedium.ttf; sourceTree = "<group>"; };
+		73B3A530692B482696EA986E /* InterSemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterSemiBold.ttf; path = ../src/assets/fonts/InterSemiBold.ttf; sourceTree = "<group>"; };
+		7DA0BA3FBB2744DAB4888EE0 /* InterExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterExtraLight.ttf; path = ../src/assets/fonts/InterExtraLight.ttf; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = EmployeeApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-EmployeeApp-EmployeeAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EmployeeApp-EmployeeAppTests.release.xcconfig"; path = "Target Support Files/Pods-EmployeeApp-EmployeeAppTests/Pods-EmployeeApp-EmployeeAppTests.release.xcconfig"; sourceTree = "<group>"; };
-		A220146E7B9C42BBA971A6A5 /* InterLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterLight.ttf; path = ../src/assets/fonts/InterLight.ttf; sourceTree = "<group>"; };
-		D36B94C2DE524FBB861063BD /* InterExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterExtraBold.ttf; path = ../src/assets/fonts/InterExtraBold.ttf; sourceTree = "<group>"; };
-		DF93E4BDAEC447E0B598CBBD /* InterThin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = InterThin.ttf; path = ../src/assets/fonts/InterThin.ttf; sourceTree = "<group>"; };
+		A220146E7B9C42BBA971A6A5 /* InterLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterLight.ttf; path = ../src/assets/fonts/InterLight.ttf; sourceTree = "<group>"; };
+		D36B94C2DE524FBB861063BD /* InterExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterExtraBold.ttf; path = ../src/assets/fonts/InterExtraBold.ttf; sourceTree = "<group>"; };
+		DF93E4BDAEC447E0B598CBBD /* InterThin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = InterThin.ttf; path = ../src/assets/fonts/InterThin.ttf; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -184,7 +184,6 @@
 				DF93E4BDAEC447E0B598CBBD /* InterThin.ttf */,
 			);
 			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -643,10 +642,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -715,10 +711,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
