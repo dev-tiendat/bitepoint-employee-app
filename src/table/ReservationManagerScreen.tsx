@@ -23,7 +23,7 @@ import ApprovedTableScene from './ApprovedTableScene';
 import CancelledTableScene from './CancelledTableScene';
 import ReserveTableModalView from './ReserveTableModalView';
 
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import axios, { CancelTokenSource } from 'axios';
 import Toast from 'react-native-toast-message';
 import {
@@ -102,7 +102,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<Reservation[]>(
+    const { response, error } = await APIManager.GET<Reservation[]>(
       '/api/v1/reservations',
     );
 
@@ -110,7 +110,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
 
     cancelTokenSource.current = undefined;
     loading.current = false;
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
       Toast.show({
@@ -170,19 +170,19 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
 
       setReserveLoading(true);
       cancelTokenSource.current = axios.CancelToken.source();
-      const { response, error } = await NewAPIManager.POST(
+      const { response, error } = await APIManager.POST(
         '/api/v1/reservations',
         data,
         cancelTokenSource.current.token,
       );
 
       cancelTokenSource.current = undefined;
-      if (!NewAPIManager.isSucceed(response)) {
+      if (!APIManager.isSucceed(response)) {
         setReserveLoading(false);
         Toast.show({
           type: 'error',
           text1: 'Đặt bàn thất bại',
-          text2: NewAPIManager.passedMessageError(error),
+          text2: APIManager.passedMessageError(error),
         });
         return;
       }
@@ -223,11 +223,11 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
   );
 
   const handleShowInfo = useCallback(async (reservationId: number) => {
-    const { response } = await NewAPIManager.GET<OrderInfo[]>(
+    const { response } = await APIManager.GET<OrderInfo[]>(
       `/api/v1/reservations/${reservationId}/order-info`,
     );
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       Toast.show({
         type: 'error',
         text1: 'Đã có lỗi xảy ra',

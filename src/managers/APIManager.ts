@@ -2,6 +2,7 @@ import axios, { AxiosRequestHeaders, CancelToken, Method } from 'axios';
 import { NavigationContainerRef } from '@react-navigation/native';
 import { Store } from '@reduxjs/toolkit';
 import { isEmpty, isNil, startsWith } from 'lodash';
+import { Config } from 'react-native-config';
 
 import { AuthLogin } from 'types/auth';
 import {
@@ -15,27 +16,26 @@ import { ErrorCode } from 'common';
 class APIManager {
   private navigationRef!: NavigationContainerRef<ReactNavigation.RootParamList> | null;
   private _baseUrl: string;
-  private _token?: string;
-  private _bearerToken?: string;
+  private _accessToken?: string;
+  private _refreshToken?: string;
   private _store?: Store;
-  private _bearerAuthentication: boolean;
 
-  constructor(bareUrl: string, bearerAuthentication: boolean) {
+  constructor(bareUrl: string) {
+    console.log('APIManager constructor', bareUrl);
+
     this._baseUrl = bareUrl;
-    this._bearerAuthentication = bearerAuthentication;
   }
 
-  setToken = (token?: string) => {
-    if (!token || this._token === token) return;
+  setAccessToken = (token?: string) => {
+    if (!token || this._accessToken === token) return;
 
     this._store?.dispatch(updateToken(token));
-    this._token = token;
+    this._accessToken = token;
   };
 
-  setBearerToken = (token?: string) => {
-    if (this._bearerToken === token || isEmpty(token)) return;
-
-    this._bearerToken = token;
+  setRefreshToken = (token?: string) => {
+    if (!token || this._refreshToken === token) return;
+    this._refreshToken = token;
   };
 
   setNavigationRef = (
@@ -45,8 +45,8 @@ class APIManager {
   };
 
   signOut = () => {
-    this._token = undefined;
-    this._bearerToken = undefined;
+    this._accessToken = undefined;
+    this._refreshToken = undefined;
   };
 
   updateStore = (store: Store) => {
@@ -56,7 +56,7 @@ class APIManager {
     this._store = store;
     const user = this._store.getState().user as AuthLogin;
 
-    this.setBearerToken(user?.tokens?.accessToken);
+    this.setAccessToken(user?.tokens?.accessToken);
     this._subscribeToken();
   };
 
@@ -103,15 +103,8 @@ class APIManager {
         headers = {} as AxiosRequestHeaders;
       }
 
-      if (
-        this._token ||
-        (this._bearerAuthentication &&
-          this._bearerToken &&
-          !headers.Authorization)
-      ) {
-        headers['Authorization'] = this._bearerAuthentication
-          ? `Bearer ${this._bearerToken}`
-          : this._token || '';
+      if (this._accessToken && !headers?.Authorization) {
+        headers['Authorization'] = `Bearer ${this._accessToken}`;
       }
 
       if (method !== 'GET' && !isNil(data)) {
@@ -136,7 +129,7 @@ class APIManager {
       let rawResponse = await fetchData();
 
       if (rawResponse.data.code === ErrorCode.ACCESS_TOKEN_EXPIRED) {
-        await this._refreshToken();
+        await this._fetchNewToken();
         rawResponse = await fetchData();
       }
       const response = rawResponse.data;
@@ -166,7 +159,7 @@ class APIManager {
     return response.message;
   };
 
-  async _refreshToken(): Promise<void> {
+  async _fetchNewToken(): Promise<void> {
     const user = this._store?.getState().user as AuthLogin;
     const refreshToken = user?.tokens?.refreshToken;
     const { response } = await this.request<string>(
@@ -187,13 +180,14 @@ class APIManager {
     }
 
     this._store?.dispatch(updateToken(response?.data!));
-    this.setBearerToken(response?.data);
+    this.setAccessToken(response?.data);
   }
 
   _handleStateChange = () => {
     const user = this._store?.getState().user as AuthLogin;
 
-    this.setBearerToken(user?.tokens?.accessToken);
+    this.setAccessToken(user?.tokens?.accessToken);
+    this.setRefreshToken(user?.tokens?.refreshToken);
   };
 
   _subscribeToken = () => {
@@ -201,8 +195,4 @@ class APIManager {
   };
 }
 
-const LegacyAPIManager = new APIManager('http://localhost:3000', false);
-
-export default LegacyAPIManager;
-
-export const NewAPIManager = new APIManager('http://localhost:3000', true);
+export default new APIManager(Config.API_BASE_URL!);

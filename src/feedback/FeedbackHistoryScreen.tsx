@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 import { COLORS, FONTS, SIZES } from 'common';
 import Icon, { IconType } from 'components/Icon';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { Feedback } from 'types/feedback';
 
 const FeedbackHistoryScreen = () => {
@@ -34,7 +34,7 @@ const FeedbackHistoryScreen = () => {
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<Feedback[]>(
+    const { response, error } = await APIManager.GET<Feedback[]>(
       '/api/v1/feedbacks',
       undefined,
       cancelTokenSource.current?.token,
@@ -44,7 +44,7 @@ const FeedbackHistoryScreen = () => {
 
     cancelTokenSource.current = undefined;
     loading.current = false;
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
       Toast.show({

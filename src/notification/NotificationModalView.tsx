@@ -10,7 +10,7 @@ import React, { useCallback, useEffect } from 'react';
 import { COLORS, FONTS, icons, SIZES } from 'common';
 import { Notification, NotificationType } from 'types/notification';
 import NotificationItem from './NotificationItem';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 
 type NotificationModalViewProps = {
   onClose?: () => void;
@@ -22,11 +22,11 @@ const NotificationModalView: React.FC<NotificationModalViewProps> = ({
   const [data, setData] = React.useState<Notification[]>([]);
 
   const loadData = useCallback(async () => {
-    const { response } = await NewAPIManager.GET<Notification[]>(
+    const { response } = await APIManager.GET<Notification[]>(
       '/api/v1/notifications',
     );
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       return;
     }
 

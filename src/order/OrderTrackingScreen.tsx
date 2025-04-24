@@ -11,7 +11,7 @@ import { Socket } from 'socket.io-client';
 
 import { COLORS, FONTS, SIZES } from 'common';
 import SocketManager from 'managers/SocketManager';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { MenuItem, OrderItemStatus } from 'types/order';
 import OrderMenuItem from './OrderMenuItem';
 
@@ -90,11 +90,11 @@ const OrderTrackingScreen = () => {
   const socket = useRef<Socket | null>(null);
 
   const loadData = useCallback(async () => {
-    const { response } = await NewAPIManager.GET<MenuItem[]>(
+    const { response } = await APIManager.GET<MenuItem[]>(
       '/api/v1/orders/order-items',
     );
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       return;
     }
 

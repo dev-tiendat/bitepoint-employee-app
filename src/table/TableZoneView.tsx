@@ -10,7 +10,7 @@ import {
 import axios, { CancelTokenSource } from 'axios';
 import { COLORS, FONTS, PROPS, SIZES } from 'common/theme';
 import TextButton from 'components/TextButton';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { TableHome, TableZone } from 'types/table';
 import { CssStyle } from 'types/style';
 import BackButton from 'components/BackButton';
@@ -75,7 +75,7 @@ const TableZoneHorizontalList: React.FC<TableZoneListViewProps> = ({
     <View style={[styles.container, style]}>
       <View style={styles.header}>
         {!showAction ? (
-          <BackButton title="Chọn bàn" style={styles.backBtn}/>
+          <BackButton title="Chọn bàn" style={styles.backBtn} />
         ) : (
           <Text style={styles.textHead}>Khu vực bàn ăn</Text>
         )}
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   listZone: {
     marginTop: SIZES.padding,
-    marginLeft: SIZES.base
+    marginLeft: SIZES.base,
   },
   item: {
     justifyContent: 'center',

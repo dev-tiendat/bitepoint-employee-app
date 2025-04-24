@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { COLORS, FONTS, SIZES } from 'common';
 import { Order, OrderStatus } from 'types/order';
 import axios, { CancelTokenSource } from 'axios';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import OrderItem from './OrderItem';
 import StatusSelectButton from './StatusSelectButton';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -51,7 +51,7 @@ const OrderManagerScreen: React.FC<OrderManagerScreenProps> = ({
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<Order[]>(
+    const { response, error } = await APIManager.GET<Order[]>(
       '/api/v1/orders',
     );
 
@@ -60,7 +60,7 @@ const OrderManagerScreen: React.FC<OrderManagerScreenProps> = ({
     cancelTokenSource.current = undefined;
     loading.current = false;
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
 

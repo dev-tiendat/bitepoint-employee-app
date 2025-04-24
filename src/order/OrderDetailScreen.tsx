@@ -34,7 +34,7 @@ import { MenuItem, Order, OrderStatus } from 'types/order';
 import { Payment, PaymentMethod } from 'types/payment';
 import { Voucher } from 'types/voucher';
 
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import SocketManager from 'managers/SocketManager';
 
 import DateUtils from 'utils/DateUtils';
@@ -75,7 +75,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<Order>(
+    const { response, error } = await APIManager.GET<Order>(
       `/api/v1/orders/${orderId}`,
     );
 
@@ -84,7 +84,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
     cancelTokenSource.current = undefined;
     loading.current = false;
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
       return;
@@ -146,12 +146,9 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
     );
   };
 
-  const handleSelectPaymentMethod = useCallback(
-    (method: PaymentMethod) => {
-      setSelectedPaymentMethod(method);
-    },
-    [],
-  );
+  const handleSelectPaymentMethod = useCallback((method: PaymentMethod) => {
+    setSelectedPaymentMethod(method);
+  }, []);
 
   const handlePay = useCallback(async () => {
     if (isNil(selectedPaymentMethod)) {
@@ -174,12 +171,12 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
   }, [navigation]);
 
   const handleApplyDiscount = async () => {
-    const { response } = await NewAPIManager.POST<Voucher>(
+    const { response } = await APIManager.POST<Voucher>(
       `/api/v1/vouchers/apply`,
       { orderId: orderId, voucherCode: discountText },
     );
 
-    if (!NewAPIManager.isSucceed(response)) {
+    if (!APIManager.isSucceed(response)) {
       switch (response!.code) {
         case ErrorCode.VOUCHER_NOT_FOUND:
           Alert.alert('Mã giảm giá không tồn tại');
@@ -206,12 +203,12 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
 
   const handleFeedback = useCallback(
     async (feedbackData: { rating: number; comments: string }) => {
-      const { response } = await NewAPIManager.POST(
+      const { response } = await APIManager.POST(
         `/api/v1/orders/${orderId}/feedback`,
         feedbackData,
       );
 
-      if (!response || !NewAPIManager.isSucceed(response)) {
+      if (!response || !APIManager.isSucceed(response)) {
         Toast.show({
           type: 'error',
           text1: 'Gửi phản hồi thất bại',

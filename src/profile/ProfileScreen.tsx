@@ -8,7 +8,7 @@ import FastImage from 'react-native-fast-image';
 import DateTimePicker from 'react-native-ui-datepicker';
 
 import { User, UserGender, UserInput, UserValidationSchema } from 'types/user';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { COLORS, FONTS, PROPS, SIZES } from 'common';
 import BackButton from 'components/BackButton';
 import Icon, { IconType } from 'components/Icon';
@@ -44,7 +44,7 @@ const ProfileScreen = () => {
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<User>(
+    const { response, error } = await APIManager.GET<User>(
       '/api/v1/account/profile',
     );
 
@@ -52,7 +52,7 @@ const ProfileScreen = () => {
 
     cancelTokenSource.current = undefined;
     loading.current = false;
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
       Toast.show({
@@ -176,7 +176,8 @@ const ProfileScreen = () => {
                   onChangeText={handleChange('birthDate')}
                   appendComponent={renderCalendarIcon}
                 />
-                <View style={[styles.datePicker, !isCalendarOpen && styles.none]}>
+                <View
+                  style={[styles.datePicker, !isCalendarOpen && styles.none]}>
                   <DateTimePicker
                     mode="single"
                     timePicker

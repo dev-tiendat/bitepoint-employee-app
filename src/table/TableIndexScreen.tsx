@@ -12,7 +12,7 @@ import axios, { CancelTokenSource } from 'axios';
 import { io, Socket } from 'socket.io-client';
 
 import { COLORS } from 'common/theme';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import SocketManager from 'managers/SocketManager';
 import { AppStackParamList } from 'navigation/AppNavigator';
 import { OrderInfo } from 'types/order';
@@ -86,7 +86,7 @@ const TableIndexScreen: React.FC<TableIndexScreenProps> = ({
 
     cancelTokenSource.current = axios.CancelToken.source();
     loading.current = true;
-    const { response, error } = await NewAPIManager.GET<TableHome[]>(
+    const { response, error } = await APIManager.GET<TableHome[]>(
       `/api/v1/table-zones/tables`,
       undefined,
       cancelTokenSource.current.token,
@@ -95,7 +95,7 @@ const TableIndexScreen: React.FC<TableIndexScreenProps> = ({
     if (axios.isCancel(error)) return;
     cancelTokenSource.current = undefined;
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
 

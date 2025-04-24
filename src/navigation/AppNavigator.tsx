@@ -6,7 +6,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import useAuthentication from 'hooks/useAuthentication';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import DrawerNavigator, { DrawerParamList } from './DrawerNavigator';
 import AuthNavigator, { AuthStackParamList } from './AuthNavigator';
 import ProfileNavigator, { ProfileStackParamList } from './ProfileNavigator';
@@ -25,7 +25,7 @@ const AppNavigator = (): React.ReactElement => {
   return (
     <NavigationContainer
       ref={navigatorRef => {
-        NewAPIManager.setNavigationRef(navigatorRef);
+        APIManager.setNavigationRef(navigatorRef);
       }}>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}

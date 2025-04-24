@@ -15,7 +15,7 @@ import { COLORS, FONTS, SIZES } from 'common/theme';
 import FormInput from 'components/FormInput';
 import TextButton from 'components/TextButton';
 import { AuthStackParamList } from 'navigation/AuthNavigator';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { AuthLogin } from 'types/auth';
 import { useAppDispatch } from 'store/hooks';
 import { updateUser } from 'store/user/userSlice';
@@ -37,7 +37,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
       usernameOrPhone,
       password,
     };
-    const { response, error } = await NewAPIManager.POST<AuthLogin>(
+    const { response, error } = await APIManager.POST<AuthLogin>(
       '/api/v1/auth/login',
       data,
     );
