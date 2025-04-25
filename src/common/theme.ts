@@ -1,4 +1,9 @@
-import { Dimensions, Platform, ScrollViewProps, StyleSheet } from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  ScrollViewProps,
+  StyleSheet,
+} from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 const isIos = Platform.OS === 'ios';
@@ -287,13 +292,17 @@ export const FONTS = {
 
 export const COMMON_STYLES = StyleSheet.create({
   shadow: {
-    shadowColor: 'rgba(0, 0, 0, 0.08)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 16,
+    shadowColor: 'rgba(0, 0, 0, 1)',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    
+    elevation: 3,
   },
 });
-
 
 export const SCROLL_VIEW_KEYBOARD_PROPS: ScrollViewProps = {
   keyboardShouldPersistTaps: Platform.select({
@@ -305,7 +314,6 @@ export const SCROLL_VIEW_KEYBOARD_PROPS: ScrollViewProps = {
     android: 'on-drag',
   }),
 };
-
 
 const appTheme = { COLORS, SIZES, FONTS, COMMON_STYLES };
 
