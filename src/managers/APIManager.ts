@@ -21,8 +21,6 @@ class APIManager {
   private _store?: Store;
 
   constructor(bareUrl: string) {
-    console.log('APIManager constructor', bareUrl);
-
     this._baseUrl = bareUrl;
   }
 
@@ -116,7 +114,7 @@ class APIManager {
         }
       }
 
-      const fetchData = () =>
+      const fetchData = async () =>
         axios.request<APIGenericResponseData<T>>({
           method,
           url,
