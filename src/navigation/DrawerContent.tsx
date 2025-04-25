@@ -38,6 +38,9 @@ type DrawerItemProps = {
   ) => void;
 };
 
+const TOGGLE_BUTTON_ICON_SIZE = 25;
+const TOGGLE_BUTTON_PADDING = 5;
+
 const DrawerItem: React.FC<DrawerItemProps> = ({
   data,
   focused,
@@ -211,7 +214,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.openDrawer}
+        style={styles.drawerToggleButton}
         activeOpacity={PROPS.touchable_active_opacity}
         onPress={handlePressToggleMenu}>
         <Icon
@@ -219,7 +222,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
           name={
             isMinimizedMenu ? 'chevron-forward-outline' : 'chevron-back-outline'
           }
-          size={25}
+          size={TOGGLE_BUTTON_ICON_SIZE}
           color={COLORS.netral_black}
         />
       </TouchableOpacity>
@@ -253,13 +256,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.netral_white,
   },
-  openDrawer: {
+  drawerToggleButton: {
     position: 'absolute',
     top: 100,
     right: 0,
-    transform: [{ translateX: '50%' }],
+    transform: [
+      { translateX: (TOGGLE_BUTTON_ICON_SIZE + TOGGLE_BUTTON_PADDING) / 2 },
+    ],
     zIndex: 1,
-    padding: 5,
+    padding: TOGGLE_BUTTON_PADDING,
     borderRadius: 99,
     justifyContent: 'center',
     alignItems: 'center',
