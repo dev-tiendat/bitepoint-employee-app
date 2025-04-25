@@ -23,7 +23,7 @@ import { selectIsMinimizedMenu } from 'store/device/deviceSelector';
 import { toggleSideBar } from 'store/device/deviceSlice';
 
 import { COLORS, COMMON_STYLES, FONTS, PROPS, SIZES } from 'common';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import { Menu } from 'types/menu';
 
 type DrawerItemProps = {
@@ -160,7 +160,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
 
   const handlePressLogout = () => {
     dispatch(logout());
-    NewAPIManager.signOut();
+    APIManager.signOut();
 
     navigation.reset({
       index: 0,
@@ -213,8 +213,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
       <TouchableOpacity
         style={styles.openDrawer}
         activeOpacity={PROPS.touchable_active_opacity}
-        onPress={handlePressToggleMenu}
-        >
+        onPress={handlePressToggleMenu}>
         <Icon
           type={IconType.ION}
           name={
