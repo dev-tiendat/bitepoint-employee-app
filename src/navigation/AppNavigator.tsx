@@ -10,6 +10,7 @@ import APIManager from 'managers/APIManager';
 import DrawerNavigator, { DrawerParamList } from './DrawerNavigator';
 import AuthNavigator, { AuthStackParamList } from './AuthNavigator';
 import ProfileNavigator, { ProfileStackParamList } from './ProfileNavigator';
+import { Platform } from 'react-native';
 
 export type AppStackParamList = {
   AuthNavigator: NavigatorScreenParams<AuthStackParamList>;
@@ -28,7 +29,10 @@ const AppNavigator = (): React.ReactElement => {
         APIManager.setNavigationRef(navigatorRef);
       }}>
       <Stack.Navigator
-        screenOptions={{ headerShown: false }}
+        screenOptions={{
+          headerShown: false,
+          statusBarHidden: Platform.OS === 'android',
+        }}
         initialRouteName={
           isAuthenticated ? 'DrawerNavigator' : 'AuthNavigator'
         }>

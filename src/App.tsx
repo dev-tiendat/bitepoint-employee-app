@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from 'store';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -14,7 +14,12 @@ const App = () => {
     <React.Fragment>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <StatusBar hidden />
+          <StatusBar
+            translucent={Platform.OS === 'android'}
+            hidden={Platform.OS === 'ios'}
+            backgroundColor={'transparent'}
+            barStyle={'light-content'}
+          />
           <AppNavigator />
           <Toast position="bottom" />
         </PersistGate>
