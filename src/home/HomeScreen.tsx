@@ -6,7 +6,7 @@ import axios, { CancelTokenSource } from 'axios';
 
 import { Statistics } from 'types/home';
 import { COLORS, icons, SIZES } from 'common';
-import { NewAPIManager } from 'managers/APIManager';
+import APIManager from 'managers/APIManager';
 import PriceUtils from 'utils/PriceUtils';
 import { useAppSelector } from 'store/hooks';
 import { selectUserInfo } from 'store/user/userSelector';
@@ -37,7 +37,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
     loading.current = true;
     cancelTokenSource.current = axios.CancelToken.source();
-    const { response, error } = await NewAPIManager.GET<Statistics>(
+    const { response, error } = await APIManager.GET<Statistics>(
       '/api/v1/statistics',
     );
 
@@ -46,7 +46,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
     cancelTokenSource.current = undefined;
     loading.current = false;
 
-    if (!response || !NewAPIManager.isSucceed(response)) {
+    if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
       return;
@@ -127,7 +127,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
