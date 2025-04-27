@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -19,6 +19,12 @@ import { selectIsMinimizedMenu } from 'store/device/deviceSelector';
 import { IconType } from 'components/Icon';
 import { Menu } from 'types/menu';
 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+
 export type DrawerParamList = {
   Home: undefined;
   Order: undefined;
@@ -26,6 +32,9 @@ export type DrawerParamList = {
   Notification: undefined;
   Feedback: undefined;
 };
+
+const DRAWER_OPENING_WIDTH = 300;
+const DRAWER_CLOSED_WIDTH = 100;
 
 export const DATA: Menu[] = [
   {
@@ -86,6 +95,18 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerNavigator = (): React.ReactElement => {
   const isMinimizedMenu = useAppSelector(selectIsMinimizedMenu);
+  const drawerWidth = useSharedValue(
+    isMinimizedMenu ? DRAWER_CLOSED_WIDTH : DRAWER_OPENING_WIDTH,
+  );
+  const animatedDrawerStyle = useAnimatedStyle(() => ({
+    width: drawerWidth.value,
+  }));
+
+  useEffect(() => {
+    drawerWidth.value = withTiming(
+      isMinimizedMenu ? DRAWER_CLOSED_WIDTH : DRAWER_OPENING_WIDTH,
+    );
+  }, [isMinimizedMenu]);
 
   const renderDrawerContent = (props: DrawerContentComponentProps) => {
     const filterData = DATA.filter(menu => {
@@ -115,7 +136,7 @@ const DrawerNavigator = (): React.ReactElement => {
       screenOptions={{
         headerShown: false,
         drawerType: 'permanent',
-        drawerStyle: { width: isMinimizedMenu ? 100 : 300 },
+        drawerStyle: animatedDrawerStyle,
       }}>
       {DATA.map(renderDrawerScreen)}
     </Drawer.Navigator>

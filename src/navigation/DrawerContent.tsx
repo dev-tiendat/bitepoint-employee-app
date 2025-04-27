@@ -1,6 +1,7 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useLayoutEffect, useRef, useState } from 'react';
 import {
   FlatList,
+  LayoutChangeEvent,
   Modal,
   StyleProp,
   StyleSheet,
@@ -25,6 +26,12 @@ import { toggleSideBar } from 'store/device/deviceSlice';
 import { COLORS, COMMON_STYLES, FONTS, PROPS, SIZES } from 'common';
 import APIManager from 'managers/APIManager';
 import { Menu } from 'types/menu';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useEffect } from 'react';
 
 type DrawerItemProps = {
   data: Menu;
@@ -37,6 +44,8 @@ type DrawerItemProps = {
     routeRootName?: string,
   ) => void;
 };
+
+const DRAWER_ITEM_MARGIN = 10;
 
 const TOGGLE_BUTTON_ICON_SIZE = 25;
 const TOGGLE_BUTTON_PADDING = 5;
@@ -54,10 +63,30 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
   const [focusedRoute, setFocusedRoute] = React.useState<string | undefined>(
     undefined,
   );
+  const heightItem = useRef(0);
   const isActive =
     focused && (isEmpty(children) || isMinimizedMenu || !isOpened);
+  const animatedHeight = useSharedValue(0);
+  const animatedOpacity = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value,
+    opacity: animatedOpacity.value,
+    overflow: 'hidden',
+  }));
 
-  const toggleDrawer = () => setIsOpened(!isOpened);
+  useEffect(() => {
+    if (isOpened && isMinimizedMenu) {
+    }
+    const maxItemHeight =
+      (heightItem.current + DRAWER_ITEM_MARGIN) *
+      (children ? children.length : 0);
+    animatedHeight.value = withTiming(isOpened && !isMinimizedMenu ? maxItemHeight : 0);
+    animatedOpacity.value = withTiming(isOpened && !isMinimizedMenu ? 1 : 0);
+  }, [isOpened, isMinimizedMenu, children]);
+
+  const toggleDrawer = () => {
+    setIsOpened(!isOpened);
+  };
 
   const handlePress = (currentItem: Menu, isChild?: boolean) => {
     if (!isEmpty(currentItem.children)) {
@@ -71,6 +100,13 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
 
     setFocusedRoute(currentItem.routeName);
     onPress?.(currentItem.routeName, isChild, routeName);
+  };
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    if (isEmpty(children)) return;
+
+    const { height } = event.nativeEvent.layout;
+    heightItem.current = height;
   };
 
   const renderChildItem = (item: Menu, index: number) => {
@@ -87,6 +123,7 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
   return (
     <View>
       <TouchableOpacity
+        onLayout={handleLayout}
         activeOpacity={PROPS.touchable_active_opacity}
         onPress={() => handlePress(data)}
         style={[styles.drawerItem, style, isActive && styles.drawerItemActive]}>
@@ -118,11 +155,9 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
           </>
         )}
       </TouchableOpacity>
-      {isOpened && !isMinimizedMenu && (
-        <View style={styles.childrenContainer}>
-          {children?.map(renderChildItem)}
-        </View>
-      )}
+      <Animated.View style={[styles.childrenContainer, animatedStyle]}>
+        {children?.map(renderChildItem)}
+      </Animated.View>
     </View>
   );
 };
@@ -190,7 +225,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
     <UserInfoHeader
       user={user}
       onPress={handlePressProfile}
-      style={styles.listHeader}
+      style={[styles.listHeader, isMinimizedMenu && styles.none]}
     />
   );
 
@@ -205,7 +240,11 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
         size={30}
         color={COLORS.danger500}
       />
-      <Text style={[styles.name, styles.logoutName]}>Đăng xuất</Text>
+      {!isMinimizedMenu && (
+        <Text style={[styles.name, styles.logoutName]} numberOfLines={1}>
+          Đăng xuất
+        </Text>
+      )}
     </TouchableOpacity>
   );
 
@@ -229,14 +268,10 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
       <FlatList
         data={data}
         renderItem={renderItem}
-        style={[styles.list, isMinimizedMenu && { marginTop: 154 }]}
+        style={[styles.list]}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={
-          !isMinimizedMenu ? renderListHeaderComponent : null
-        }
-        ListFooterComponent={
-          !isMinimizedMenu ? renderListFooterComponent : null
-        }
+        ListHeaderComponent={renderListHeaderComponent}
+        ListFooterComponent={renderListFooterComponent}
       />
       <Suspense fallback={null}>
         <Modal
@@ -284,7 +319,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: SIZES.padding,
     paddingRight: SIZES.padding / 2,
-    marginTop: 10,
+    marginTop: DRAWER_ITEM_MARGIN,
     paddingVertical: 10,
     borderRadius: SIZES.radius,
     backgroundColor: 'transparent',
@@ -317,6 +352,9 @@ const styles = StyleSheet.create({
   },
   logoutName: {
     color: COLORS.danger500,
+  },
+  none: {
+    opacity: 0,
   },
 });
 

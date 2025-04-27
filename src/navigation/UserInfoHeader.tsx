@@ -46,7 +46,7 @@ const UserInfoHeader: React.FC<UserInfoHeaderProps> = ({
         />
       )}
       <View>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="clip">
           {user?.fullName}
         </Text>
       </View>
