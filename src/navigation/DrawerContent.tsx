@@ -80,7 +80,9 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
     const maxItemHeight =
       (heightItem.current + DRAWER_ITEM_MARGIN) *
       (children ? children.length : 0);
-    animatedHeight.value = withTiming(isOpened && !isMinimizedMenu ? maxItemHeight : 0);
+    animatedHeight.value = withTiming(
+      isOpened && !isMinimizedMenu ? maxItemHeight : 0,
+    );
     animatedOpacity.value = withTiming(isOpened && !isMinimizedMenu ? 1 : 0);
   }, [isOpened, isMinimizedMenu, children]);
 
@@ -137,7 +139,8 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
           <>
             <Text
               style={[styles.name, isActive && styles.nameActive]}
-              numberOfLines={1}>
+              numberOfLines={1}
+              ellipsizeMode="clip">
               {name}
             </Text>
             {!isEmpty(children) && (
@@ -225,7 +228,7 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
     <UserInfoHeader
       user={user}
       onPress={handlePressProfile}
-      style={[styles.listHeader, isMinimizedMenu && styles.none]}
+      style={[styles.listHeader, isMinimizedMenu && styles.hidden]}
     />
   );
 
@@ -241,7 +244,10 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
         color={COLORS.danger500}
       />
       {!isMinimizedMenu && (
-        <Text style={[styles.name, styles.logoutName]} numberOfLines={1}>
+        <Text
+          style={[styles.name, styles.logoutName]}
+          numberOfLines={1}
+          ellipsizeMode="clip">
           Đăng xuất
         </Text>
       )}
@@ -327,6 +333,7 @@ const styles = StyleSheet.create({
   name: {
     marginLeft: 10,
     color: COLORS.netral600,
+    overflow: 'hidden',
     ...FONTS.subtitle3,
   },
   nameActive: {
@@ -353,7 +360,7 @@ const styles = StyleSheet.create({
   logoutName: {
     color: COLORS.danger500,
   },
-  none: {
+  hidden: {
     opacity: 0,
   },
 });
