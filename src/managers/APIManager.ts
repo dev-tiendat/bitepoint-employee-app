@@ -27,7 +27,6 @@ class APIManager {
   setAccessToken = (token?: string) => {
     if (!token || this._accessToken === token) return;
 
-    this._store?.dispatch(updateToken(token));
     this._accessToken = token;
   };
 
