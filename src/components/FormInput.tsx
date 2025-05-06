@@ -5,7 +5,7 @@ import { CssStyle } from 'types/style';
 import { COLORS, FONTS, SIZES } from 'common/theme';
 import Input, { InputProps } from './Input';
 
-type FormInputProps = InputProps & {
+export type FormInputProps = InputProps & {
   style?: StyleProp<CssStyle>;
   label: string;
   errorMessage?: string;
@@ -26,7 +26,7 @@ const FormInput: React.FC<FormInputProps> = ({
       <Input
         inputContainerStyle={[
           inputContainerStyle,
-          errorMessage && styles.errorInput,
+          errorMessage && styles.errorBorder,
         ]}
         {...rest}
       />
@@ -39,7 +39,7 @@ export default FormInput;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: SIZES.base,
+    gap: SIZES.base,
   },
   headContainer: {
     flexDirection: 'row',
@@ -49,13 +49,11 @@ const styles = StyleSheet.create({
     ...FONTS.body3,
     color: COLORS.netral600,
   },
-  errorInput: {
+  errorBorder: {
     borderColor: COLORS.danger500,
-    borderWidth: 1,
   },
   errorMessage: {
     ...FONTS.subtitle4,
-    marginTop: SIZES.base,
     color: COLORS.danger500,
   },
 });
