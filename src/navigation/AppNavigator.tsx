@@ -11,11 +11,13 @@ import DrawerNavigator, { DrawerParamList } from './DrawerNavigator';
 import AuthNavigator, { AuthStackParamList } from './AuthNavigator';
 import ProfileNavigator, { ProfileStackParamList } from './ProfileNavigator';
 import { Platform } from 'react-native';
+import NavigationAlert, { NavigationAlertParams } from './NavigationAlert';
 
 export type AppStackParamList = {
   AuthNavigator: NavigatorScreenParams<AuthStackParamList>;
   DrawerNavigator: NavigatorScreenParams<DrawerParamList>;
   ProfileNavigator: NavigatorScreenParams<ProfileStackParamList>;
+  NavigationAlert: NavigationAlertParams;
 };
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -39,6 +41,13 @@ const AppNavigator = (): React.ReactElement => {
         <Stack.Screen name="AuthNavigator" component={AuthNavigator} />
         <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
         <Stack.Screen name="ProfileNavigator" component={ProfileNavigator} />
+        <Stack.Group
+          screenOptions={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+          }}>
+          <Stack.Screen name="NavigationAlert" component={NavigationAlert} />
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   );
