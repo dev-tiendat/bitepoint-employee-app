@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    ...FONTS.body3,
+    ...FONTS.title3,
     color: COLORS.netral600,
   },
   errorBorder: {
