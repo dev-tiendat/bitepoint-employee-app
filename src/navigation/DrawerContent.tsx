@@ -32,6 +32,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
+import AlertUtils from 'utils/AlertUtils';
+import UserManager from 'managers/UserManager';
 
 type DrawerItemProps = {
   data: Menu;
@@ -200,12 +202,20 @@ const DrawerContent = ({ data, state, navigation }: DrawerContentProps) => {
   };
 
   const handlePressLogout = () => {
-    dispatch(logout());
-    APIManager.signOut();
-
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'AuthNavigator' }],
+    AlertUtils.showCustom({
+      title: 'Đăng xuất',
+      description: 'Bạn có chắc chắn muốn đăng xuất?',
+      actions: [
+        {
+          label: 'Hủy',
+          style: 'cancel',
+        },
+        {
+          label: 'Đăng xuất',
+          onPress: UserManager.signOut,
+          style: 'destructive',
+        },
+      ],
     });
   };
 

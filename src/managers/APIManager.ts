@@ -1,5 +1,4 @@
 import axios, { AxiosRequestHeaders, CancelToken, Method } from 'axios';
-import { NavigationContainerRef } from '@react-navigation/native';
 import { Store } from '@reduxjs/toolkit';
 import { isEmpty, isNil, startsWith } from 'lodash';
 import { Config } from 'react-native-config';
@@ -12,9 +11,11 @@ import {
 } from '../types/api';
 import { updateToken } from 'store/user/userSlice';
 import { ErrorCode } from 'common';
+import { navigationRef } from 'navigation/AppNavigator';
+import UserManager from './UserManager';
+import AlertUtils from 'utils/AlertUtils';
 
 class APIManager {
-  private navigationRef!: NavigationContainerRef<ReactNavigation.RootParamList> | null;
   private _baseUrl: string;
   private _accessToken?: string;
   private _refreshToken?: string;
@@ -33,12 +34,6 @@ class APIManager {
   setRefreshToken = (token?: string) => {
     if (!token || this._refreshToken === token) return;
     this._refreshToken = token;
-  };
-
-  setNavigationRef = (
-    ref: NavigationContainerRef<ReactNavigation.RootParamList> | null,
-  ) => {
-    this.navigationRef = ref;
   };
 
   signOut = () => {
@@ -125,6 +120,26 @@ class APIManager {
 
       let rawResponse = await fetchData();
 
+      switch (rawResponse.data.code) {
+        case ErrorCode.ACCESS_TOKEN_EXPIRED:
+          await this._fetchNewToken();
+          rawResponse = await fetchData();
+          break;
+
+        case ErrorCode.PASSWORD_CHANGED:
+          this.signOut();
+          AlertUtils.showCustom({
+            title: 'Xác thực',
+            description: 'Mật khẩu đã được thay đổi ở nơi khác, vui lòng đăng nhập lại',
+            actions: [
+              {
+                label: 'Đăng nhập lại',
+                onPress: UserManager.clearUserSession,
+                style: 'primary',
+              },
+            ],
+          });
+      }
       if (rawResponse.data.code === ErrorCode.ACCESS_TOKEN_EXPIRED) {
         await this._fetchNewToken();
         rawResponse = await fetchData();
@@ -156,6 +171,16 @@ class APIManager {
     return response.message;
   };
 
+  transformToFormData = (data: Record<string, any>) => {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        formData.append(key, data[key]);
+      }
+    }
+    return formData;
+  };
+
   async _fetchNewToken(): Promise<void> {
     const user = this._store?.getState().user as AuthLogin;
     const refreshToken = user?.tokens?.refreshToken;
@@ -168,12 +193,18 @@ class APIManager {
     );
 
     if (response?.code === ErrorCode.REFRESH_TOKEN_EXPIRED) {
-      this.signOut();
-      this.navigationRef?.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
+      AlertUtils.showCustom({
+        title: 'Xác thực',
+        description: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại',
+        actions: [
+          {
+            label: 'Đăng nhập lại',
+            onPress: UserManager.clearUserSession,
+            style: 'primary',
+          },
+        ],
       });
-      return;
+      throw new Error('Refresh token expired');
     }
 
     this._store?.dispatch(updateToken(response?.data!));

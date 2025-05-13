@@ -1,26 +1,25 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppStackParamList } from './AppNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { isNil } from 'lodash';
+
 import { COLORS, FONTS, PROPS, SIZES } from 'common';
+import { AppStackParamList } from './AppNavigator';
+import { OnPressNone } from 'types/props';
 
 const MAX_WIDTH = SIZES.width / 3;
-
-type ActionConfig = {
-  onPress: () => void;
-  show?: boolean;
-  label?: string;
+type ActionType = {
+  label: string;
+  onPress?: OnPressNone;
+  style?: 'primary' | 'cancel' | 'default' | 'destructive' | undefined;
 };
 
 export type NavigationAlertParams = {
   title?: string;
   description: string;
-  goBack?: boolean;
-  actions?: {
-    confirm?: ActionConfig;
-    cancel?: Partial<ActionConfig>;
-  };
+  actions?: ActionType[];
 };
+
 export type NavigationAlertProps = NativeStackScreenProps<
   AppStackParamList,
   'NavigationAlert'
@@ -30,20 +29,48 @@ const NavigationAlert: React.FC<NavigationAlertProps> = ({
   navigation,
   route,
 }) => {
-  const {
-    title = 'Thông báo',
-    description,
-    goBack = true,
-    actions,
-  } = route.params;
+  const { title = 'Thông báo', description, actions } = route.params;
 
-  const handleConfirm = () => {
-    actions?.confirm?.onPress?.();
-    if (goBack && navigation.canGoBack()) navigation.goBack();
+  const closeModal = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
   };
-  const handleCancel = () => {
-    actions?.cancel?.onPress?.();
-    if (goBack && navigation.canGoBack()) navigation.goBack();
+
+  const handlePressAction = (callback?: OnPressNone) => {
+    closeModal();
+    callback?.();
+  };
+
+  const renderAction = (action: ActionType, index: number) => {
+    const { label, onPress, style } = action;
+    const buttonStyle = [
+      styles.button,
+      (style === 'default' || style === 'cancel' || isNil(style)) &&
+        styles.normalButton,
+      style === 'primary' && styles.primaryButton,
+      style === 'destructive' && styles.destructiveButton,
+    ];
+    const textStyle = [
+      styles.buttonText,
+      (style === 'default' || style === 'cancel' || isNil(style)) &&
+        styles.normalButtonText,
+      style === 'primary' && styles.primaryButtonText,
+      style === 'destructive' && styles.destructiveButtonText,
+    ];
+
+    const onPressItem = () => {
+      handlePressAction(onPress);
+    };
+    return (
+      <TouchableOpacity
+        key={`alert-action-${index}`}
+        activeOpacity={PROPS.touchable_active_opacity}
+        style={buttonStyle}
+        onPress={onPressItem}>
+        <Text style={textStyle}>{label}</Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -52,26 +79,16 @@ const NavigationAlert: React.FC<NavigationAlertProps> = ({
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.actions}>
-          {actions?.cancel?.show && (
-            <TouchableOpacity
-              activeOpacity={PROPS.touchable_active_opacity}
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleCancel}>
-              <Text style={styles.buttonText}>
-                {actions.cancel.label || 'Huỷ'}
-              </Text>
-            </TouchableOpacity>
-          )}
-          {actions?.confirm?.show && (
-            <TouchableOpacity
-              activeOpacity={PROPS.touchable_active_opacity}
-              style={[styles.button, styles.confirmButton]}
-              onPress={handleConfirm}>
-              <Text style={styles.buttonText}>
-                {actions.confirm.label || 'Xác nhận'}
-              </Text>
-            </TouchableOpacity>
-          )}
+          {!isNil(actions)
+            ? actions.map(renderAction)
+            : renderAction(
+                {
+                  label: 'Huỷ',
+                  onPress: closeModal,
+                  style: 'cancel',
+                },
+                0,
+              )}
         </View>
       </View>
     </View>
@@ -102,27 +119,38 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: SIZES.padding / 2,
   },
   button: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: SIZES.radius,
   },
-  cancelButton: {
+  normalButton: {
+    backgroundColor: COLORS.netral100,
+  },
+  destructiveButton: {
     backgroundColor: COLORS.danger500,
   },
-  confirmButton: {
+  primaryButton: {
     backgroundColor: COLORS.primary500,
   },
   buttonText: {
-    color: COLORS.netral_white,
     ...FONTS.title3,
+  },
+  normalButtonText: {
+    color: COLORS.netral_black,
+  },
+  destructiveButtonText: {
+    color: COLORS.netral_white,
+  },
+  primaryButtonText: {
+    color: COLORS.netral_white,
   },
 });
 
