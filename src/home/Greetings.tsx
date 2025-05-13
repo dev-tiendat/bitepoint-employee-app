@@ -27,8 +27,8 @@ const Greetings: React.FC<GreetingsProps> = ({ name, style }) => {
     return () => clearInterval(timer);
   }, []);
 
-  const formattedTime = DateUtils.formatToDate(currentTime, 'HH:mm:ss');
-  const formattedDate = DateUtils.formatToDate(currentTime, 'DD/MM/YYYY');
+  const formattedTime = DateUtils.format(currentTime, 'HH:mm:ss');
+  const formattedDate = DateUtils.formatToDate(currentTime);
 
   return (
     <View style={[styles.container, style]}>

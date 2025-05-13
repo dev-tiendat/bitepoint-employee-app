@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { isDate } from 'lodash';
 
-const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm';
-const DATE_FORMAT = 'YYYY-MM-DD';
+const DATE_TIME_FORMAT = 'DD/MM/YYYY HH:mm';
+const DATE_FORMAT = 'DD/MM/YYYY';
 const TIME_FORMAT = 'HH:mm';
 
 class DateUtils {
@@ -10,18 +10,29 @@ class DateUtils {
     return dayjs.unix(Number(unix)).format(format);
   }
 
+  static format(
+    date: string | number | Date | dayjs.Dayjs | null | undefined,
+    format: string,
+  ) {
+    return dayjs(date).format(format);
+  }
+
   static formatToDateTime(
     date: string | number | Date | dayjs.Dayjs | null | undefined = undefined,
-    format = DATE_TIME_FORMAT,
   ): string {
-    return dayjs(date).format(format);
+    return dayjs(date).format(DATE_TIME_FORMAT);
   }
 
   static formatToDate(
     date: string | number | Date | dayjs.Dayjs | null | undefined = undefined,
-    format = DATE_FORMAT,
   ): string {
-    return dayjs(date).format(format);
+    return dayjs(date).format(DATE_FORMAT);
+  }
+
+  static formatToTime(
+    time: string | number | Date | dayjs.Dayjs | null | undefined = undefined,
+  ): string {
+    return dayjs(time).format(TIME_FORMAT);
   }
 
   static isDateObject(obj: unknown): boolean {
