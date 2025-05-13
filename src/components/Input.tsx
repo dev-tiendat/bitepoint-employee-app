@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { COLORS, FONTS, SIZES } from 'common';
+import { COLORS, FONTS, PROPS, SIZES } from 'common';
 import { CssStyle } from 'types/style';
 import Icon, { IconProps } from './Icon';
 
@@ -115,7 +115,9 @@ const Input: React.FC<InputProps> = ({
         ]}
       />
       {appendIcon && (
-        <TouchableOpacity onPress={handlePressAppendIcon}>
+        <TouchableOpacity
+          activeOpacity={PROPS.touchable_active_opacity}
+          onPress={handlePressAppendIcon}>
           <Icon {...appendIcon} size={24} color={COLORS.netral_black} />
         </TouchableOpacity>
       )}
