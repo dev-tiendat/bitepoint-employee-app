@@ -13,7 +13,7 @@ import { COLORS, FONTS, PROPS, SIZES } from 'common';
 import Icon, { IconType } from 'components/Icon';
 import BackgroundTimer from 'react-native-background-timer';
 
-const ICON_SIZE = 32;
+const ICON_SIZE = 25;
 
 export type ToastItemProps = {
   message: string;
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary100,
   },
   iconContainer: {
-    width: 50,
-    height: 50,
+    width: ICON_SIZE + 10,
+    height: ICON_SIZE + 10,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',

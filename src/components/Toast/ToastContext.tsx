@@ -9,6 +9,7 @@ export type ToastContextType = {
   showToast: (
     message: string,
     type?: 'success' | 'error' | 'warning' | 'info',
+    title?: string,
     duration?: number,
     autoHide?: boolean,
   ) => void;
@@ -21,6 +22,7 @@ type Toast = {
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
   duration: number;
+  title?: string;
   autoHide?: boolean;
 };
 
@@ -37,6 +39,7 @@ export const ToastProvider: React.FC<ToastProviderType> = ({ children }) => {
     (
       message: string,
       type: 'success' | 'error' | 'warning' | 'info' = 'info',
+      title?: string,
       duration = DEFAULT_DURATION,
       autoHide = true,
     ) => {
@@ -46,6 +49,7 @@ export const ToastProvider: React.FC<ToastProviderType> = ({ children }) => {
         type,
         duration,
         autoHide,
+        title,
       };
       setToasts(current => [newToast, ...current]);
     },
