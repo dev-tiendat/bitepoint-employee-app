@@ -64,19 +64,22 @@ export const ToastProvider: React.FC<ToastProviderType> = ({ children }) => {
     setToasts([]);
   }, []);
 
+  const renderItem = (toast: Toast, index: number) => (
+    <MemoToastItem
+      key={toast.id}
+      index={index}
+      duration={toast.duration}
+      title={toast.title}
+      message={toast.message}
+      type={toast.type}
+      onHide={() => hideToast(toast.id)}
+    />
+  );
+
   return (
     <ToastContext.Provider value={{ showToast, hideToast, hideAllToast }}>
       {children}
-      {toasts.map((toast, idx) => (
-        <MemoToastItem
-          key={toast.id}
-          index={idx}
-          duration={toast.duration}
-          message={toast.message}
-          type={toast.type}
-          onHide={() => hideToast(toast.id)}
-        />
-      ))}
+      {toasts.map(renderItem)}
     </ToastContext.Provider>
   );
 };
