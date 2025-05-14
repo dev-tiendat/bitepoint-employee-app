@@ -1,30 +1,35 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { Platform, StatusBar } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from 'store';
 import { PersistGate } from 'redux-persist/integration/react';
-import Toast from 'react-native-toast-message';
-import 'react-native-gesture-handler';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { persistor } from '../index';
 
 import AppNavigator from 'navigation/AppNavigator';
+import { ToastProvider } from 'components/Toast';
 
 const App = () => {
   return (
-    <React.Fragment>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <StatusBar
-            translucent={Platform.OS === 'android'}
-            hidden={Platform.OS === 'ios'}
-            backgroundColor={'transparent'}
-            barStyle={'light-content'}
-          />
-          <AppNavigator />
-          <Toast position="bottom" />
-        </PersistGate>
-      </Provider>
-    </React.Fragment>
+    <GestureHandlerRootView>
+      <ActionSheetProvider>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <ToastProvider>
+              <StatusBar
+                translucent={Platform.OS === 'android'}
+                hidden={Platform.OS === 'ios'}
+                backgroundColor={'transparent'}
+                barStyle={'light-content'}
+              />
+              <AppNavigator />
+            </ToastProvider>
+          </PersistGate>
+        </Provider>
+      </ActionSheetProvider>
+    </GestureHandlerRootView>
   );
 };
 
