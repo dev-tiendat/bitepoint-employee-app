@@ -18,7 +18,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import axios, { CancelTokenSource } from 'axios';
 import { isNil } from 'lodash';
 import { Socket } from 'socket.io-client';
-import Toast from 'react-native-toast-message';
 
 import { COLORS, ErrorCode, FONTS, SIZES } from 'common';
 import BackButton from 'components/BackButton';
@@ -30,13 +29,12 @@ import OrderPaymentQRCodeModalView from './OrderPaymentQRCodeModalView';
 import OrderPaymentSuccessModalView from './OrderPaymentSuccessModalView';
 
 import { OrderStackParamList } from 'navigation/OrderNavigator';
+import { useToast } from 'hooks/useToast';
+import APIManager from 'managers/APIManager';
+import SocketManager from 'managers/SocketManager';
 import { MenuItem, Order, OrderStatus } from 'types/order';
 import { Payment, PaymentMethod } from 'types/payment';
 import { Voucher } from 'types/voucher';
-
-import APIManager from 'managers/APIManager';
-import SocketManager from 'managers/SocketManager';
-
 import DateUtils from 'utils/DateUtils';
 import PriceUtils from 'utils/PriceUtils';
 
@@ -62,6 +60,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
   const [refreshing, setRefreshing] = useState(true);
   const loading = useRef(false);
   const cancelTokenSource = useRef<CancelTokenSource | undefined>(undefined);
+  const { showToast } = useToast();
 
   const cancelRequest = useCallback(() => {
     if (cancelTokenSource.current) {
@@ -209,18 +208,12 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = ({
       );
 
       if (!response || !APIManager.isSucceed(response)) {
-        Toast.show({
-          type: 'error',
-          text1: 'Gửi phản hồi thất bại',
-        });
+        showToast('Gửi phản hồi thất bại', 'error');
         handleDone();
         return;
       }
 
-      Toast.show({
-        type: 'success',
-        text1: 'Gửi phản hồi thành công',
-      });
+      showToast('Gửi phản hồi thành công', 'success');
       handleDone();
     },
     [orderId, handleDone],

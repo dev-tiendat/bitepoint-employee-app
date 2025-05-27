@@ -1,6 +1,5 @@
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Toast from 'react-native-toast-message';
 import axios, { CancelTokenSource } from 'axios';
 import dayjs from 'dayjs';
 
@@ -8,12 +7,14 @@ import { COLORS, FONTS, SIZES } from 'common';
 import Icon, { IconType } from 'components/Icon';
 import APIManager from 'managers/APIManager';
 import { Feedback } from 'types/feedback';
+import { useToast } from 'hooks/useToast';
 
 const FeedbackHistoryScreen = () => {
   const [data, setData] = useState<Feedback[] | undefined>(undefined);
   const loading = useRef<boolean>(false);
   const [refreshing, setRefreshing] = useState(true);
   const cancelTokenSource = useRef<CancelTokenSource | undefined>(undefined);
+  const { showToast } = useToast();
 
   const cancelRequest = useCallback(() => {
     if (cancelTokenSource.current) {
@@ -47,10 +48,7 @@ const FeedbackHistoryScreen = () => {
     if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
-      Toast.show({
-        type: 'error',
-        text1: 'Đã có lỗi xảy ra',
-      });
+      showToast('Đã có lỗi xảy ra', 'error');
       return;
     }
 

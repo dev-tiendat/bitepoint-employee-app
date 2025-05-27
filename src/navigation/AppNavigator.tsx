@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import {
+  createNavigationContainerRef,
   NavigationContainer,
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { useToast } from 'hooks/useToast';
 import useAuthentication from 'hooks/useAuthentication';
-import APIManager from 'managers/APIManager';
 import DrawerNavigator, { DrawerParamList } from './DrawerNavigator';
 import AuthNavigator, { AuthStackParamList } from './AuthNavigator';
 import ProfileNavigator, { ProfileStackParamList } from './ProfileNavigator';
-import { Platform } from 'react-native';
 import NavigationAlert, { NavigationAlertParams } from './NavigationAlert';
 
 export type AppStackParamList = {
@@ -20,16 +21,22 @@ export type AppStackParamList = {
   NavigationAlert: NavigationAlertParams;
 };
 
+export const navigationRef = createNavigationContainerRef<AppStackParamList>();
+
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppNavigator = (): React.ReactElement => {
   const { isAuthenticated } = useAuthentication();
+  const { hideAllToast } = useToast();
+
+  useEffect(() => {
+    navigationRef.addListener('state', () => {
+      hideAllToast();
+    });
+  }, []);
 
   return (
-    <NavigationContainer
-      ref={navigatorRef => {
-        APIManager.setNavigationRef(navigatorRef);
-      }}>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
