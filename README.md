@@ -46,32 +46,31 @@ A modern restaurant ordering system designed to enhance customer experience and 
 | Web Admin        | Next.js                      |
 | Backend/API      | RESTful API (NestJS)         |
 | Database         | MySQL                        |
-
 ## 🖼️ Screenshots
 ### 👨‍🍳 Mobile App - Staff
-![](docs/images/employee1.png)
-![](docs/images/employee1.png)
-![](docs/images/employee2.png)
-![](docs/images/employee3.png)
-![](docs/images/employee4.png)
-![](docs/images/employee5.png)
-![](docs/images/employee6.png)
-![](docs/images/employee7.png)
-![](docs/images/employee8.png)
-![](docs/images/employee9.png)
-![](docs/images/employee10.png)
-![](docs/images/employee11.png)
+<img src="docs/images/employee1.png" width="200"/>
+<img src="docs/images/employee1.png" width="200"/>
+<img src="docs/images/employee2.png" width="200"/>
+<img src="docs/images/employee3.png" width="200"/>
+<img src="docs/images/employee4.png" width="200"/>
+<img src="docs/images/employee5.png" width="200"/>
+<img src="docs/images/employee6.png" width="200"/>
+<img src="docs/images/employee7.png" width="200"/>
+<img src="docs/images/employee8.png" width="200"/>
+<img src="docs/images/employee9.png" width="200"/>
+<img src="docs/images/employee10.png" width="200"/>
+<img src="docs/images/employee11.png" width="200"/>
 
 ### 📲 Mobile App - Customer
-![](docs/images/customer1.png)
-![](docs/images/customer2.png)
-![](docs/images/customer3.png)
-![](docs/images/customer4.png)
-### 🖥️ Web Admin
-![](docs/images/admin1.png)
-![](docs/images/admin2.png)
-![](docs/images/admin3.png)
-![](docs/images/admin4.png)
-![](docs/images/admin5.png)
-![](docs/images/admin6.png)
+<img src="docs/images/customer1.png" width="200"/>
+<img src="docs/images/customer2.png" width="200"/>
+<img src="docs/images/customer3.png" width="200"/>
+<img src="docs/images/customer4.png" width="200"/>
 
+### 🖥️ Web Admin
+<img src="docs/images/admin1.png" width="600"/>
+<img src="docs/images/admin2.png" width="600"/>
+<img src="docs/images/admin3.png" width="600"/>
+<img src="docs/images/admin4.png" width="600"/>
+<img src="docs/images/admin5.png" width="600"/>
+<img src="docs/images/admin6.png" width="600"/>
