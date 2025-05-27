@@ -1,25 +1,22 @@
-import React from 'react';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RawAxiosRequestHeaders } from 'axios';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CompositeScreenProps } from '@react-navigation/native';
+import UserAgent from 'react-native-user-agent';
 
-import { images } from 'common';
+import { ErrorCode, images } from 'common';
 import { COLORS, FONTS, SIZES } from 'common/theme';
 import FormInput from 'components/FormInput';
 import TextButton from 'components/TextButton';
-import { AuthStackParamList } from 'navigation/AuthNavigator';
+import PasswordInput from 'components/PasswordInput';
+import { useToast } from 'hooks/useToast';
 import APIManager from 'managers/APIManager';
+import { AuthStackParamList } from 'navigation/AuthNavigator';
+import { AppStackParamList } from 'navigation/AppNavigator';
 import { AuthLogin } from 'types/auth';
 import { useAppDispatch } from 'store/hooks';
 import { updateUser } from 'store/user/userSlice';
-import { AppStackParamList } from 'navigation/AppNavigator';
 import BackgroundSlider from './BackgroundSlider';
 
 export type LoginScreenProps = CompositeScreenProps<
@@ -27,33 +24,57 @@ export type LoginScreenProps = CompositeScreenProps<
   NativeStackScreenProps<AppStackParamList>
 >;
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
-  const [usernameOrPhone, setUsernameOrPhone] = React.useState('');
-  const [password, setPassword] = React.useState('');
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const [usernameOrPhone, setUsernameOrPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [isDisableSubmit, setIsDisableSubmit] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    setIsDisableSubmit(!usernameOrPhone || !password);
+  }, [usernameOrPhone, password]);
+
   const handlePressLogin = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
     const data = {
       usernameOrPhone,
       password,
     };
-    const { response, error } = await APIManager.POST<AuthLogin>(
+    const headers: RawAxiosRequestHeaders = {
+      'User-Agent': UserAgent.getUserAgent(),
+    };
+
+    const { response } = await APIManager.request<AuthLogin>(
+      'POST',
       '/api/v1/auth/login',
+      headers,
+      undefined,
       data,
     );
 
-    if (response && !response.data) {
+    if (!APIManager.isSucceed(response)) {
+      setIsLoading(false);
+
       let errorMessage = '';
-      switch (response!.code) {
-        case 1002:
+      switch (response?.code) {
+        case ErrorCode.INVALID_USERNAME_PASSWORD:
           errorMessage = 'Tài khoản hoặc mật khẩu không chính xác';
+          setIsDisableSubmit(true);
+          break;
+        default:
+          errorMessage = 'Đã có lỗi xảy ra';
           break;
       }
-      Alert.alert('Thông báo', errorMessage);
 
+      showToast(errorMessage, 'error', 'Đăng nhập không thành công');
       return;
     }
     dispatch(updateUser(response!.data!));
+    setIsLoading(false);
 
     navigation.navigate('DrawerNavigator', { screen: 'Home', initial: true });
   };
@@ -72,17 +93,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
             placeholder="Tên tài khoản hoặc số điện thoại"
             onChangeText={setUsernameOrPhone}
           />
-          <FormInput
+          <PasswordInput
             label="Mật khẩu"
             value={password}
             placeholder="Nhập mật khẩu"
             onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TextButton
-            style={styles.loginBtn}
-            label="Đăng nhập"
-            onPress={handlePressLogin}
           />
           <View style={styles.serviceContainer}>
             <TouchableOpacity
@@ -90,6 +105,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation, route }) => {
               <Text style={[styles.forgetPasswordText]}>Quên mật khẩu ?</Text>
             </TouchableOpacity>
           </View>
+          <TextButton
+            style={styles.loginBtn}
+            label="Đăng nhập"
+            onPress={handlePressLogin}
+            loading={isLoading}
+            disabled={isDisableSubmit}
+            type="primary"
+          />
         </View>
       </View>
     </View>
@@ -149,12 +172,9 @@ const styles = StyleSheet.create({
   serviceContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    marginTop: 20,
   },
   loginBtn: {
-    marginTop: 30,
-    // width: '70%',
-    // paddingVertical: 16,
+    marginTop: SIZES.padding,
   },
   forgetPasswordText: {
     color: COLORS.warning600,
