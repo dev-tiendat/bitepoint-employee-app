@@ -1,25 +1,25 @@
-import axios, { AxiosRequestHeaders, CancelToken, Method } from 'axios';
+import axios, { CancelToken, Method, RawAxiosRequestHeaders } from 'axios';
 import { Store } from '@reduxjs/toolkit';
 import { isEmpty, isNil, startsWith } from 'lodash';
 import { Config } from 'react-native-config';
 
+import { ErrorCode } from 'common';
 import { AuthLogin } from 'types/auth';
 import {
   APIGenericResponse,
   APIGenericResponseData,
   ContentType,
-} from '../types/api';
+} from 'types/api';
 import { updateToken } from 'store/user/userSlice';
-import { ErrorCode } from 'common';
-import { navigationRef } from 'navigation/AppNavigator';
-import UserManager from './UserManager';
 import AlertUtils from 'utils/AlertUtils';
+import UserManager from './UserManager';
 
 class APIManager {
   private _baseUrl: string;
   private _accessToken?: string;
   private _refreshToken?: string;
   private _store?: Store;
+  private _refreshingTokenPromise?: Promise<void>;
 
   constructor(bareUrl: string) {
     this._baseUrl = bareUrl;
@@ -83,7 +83,7 @@ class APIManager {
   request = async <T>(
     method: Method,
     path: string,
-    headers?: AxiosRequestHeaders,
+    headers?: RawAxiosRequestHeaders,
     params?: Record<string, any> | undefined,
     data?: any,
     cancelToken?: CancelToken | undefined,
@@ -92,7 +92,7 @@ class APIManager {
       const url = startsWith(path, 'http') ? path : `${this._baseUrl}${path}`;
 
       if (isNil(headers)) {
-        headers = {} as AxiosRequestHeaders;
+        headers = {} as RawAxiosRequestHeaders;
       }
 
       if (this._accessToken && !headers?.Authorization) {
@@ -120,6 +120,15 @@ class APIManager {
 
       let rawResponse = await fetchData();
 
+      if (rawResponse.data.code === ErrorCode.ACCESS_TOKEN_EXPIRED) {
+        if (!this._refreshingTokenPromise) {
+          this._refreshingTokenPromise = this._fetchNewToken().finally(() => {
+            this._refreshingTokenPromise = undefined;
+          });
+        }
+        await this._refreshingTokenPromise;
+        rawResponse = await fetchData();
+      }
       switch (rawResponse.data.code) {
         case ErrorCode.ACCESS_TOKEN_EXPIRED:
           await this._fetchNewToken();
@@ -127,10 +136,10 @@ class APIManager {
           break;
 
         case ErrorCode.PASSWORD_CHANGED:
-          this.signOut();
           AlertUtils.showCustom({
             title: 'Xác thực',
-            description: 'Mật khẩu đã được thay đổi ở nơi khác, vui lòng đăng nhập lại',
+            description:
+              'Mật khẩu đã được thay đổi ở nơi khác, vui lòng đăng nhập lại',
             actions: [
               {
                 label: 'Đăng nhập lại',
@@ -207,8 +216,8 @@ class APIManager {
       throw new Error('Refresh token expired');
     }
 
-    this._store?.dispatch(updateToken(response?.data!));
     this.setAccessToken(response?.data);
+    this._store?.dispatch(updateToken(response?.data!));
   }
 
   _handleStateChange = () => {

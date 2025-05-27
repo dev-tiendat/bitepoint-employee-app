@@ -1,29 +1,32 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Formik, FormikProps } from 'formik';
-import axios, { CancelTokenSource } from 'axios';
-import Toast from 'react-native-toast-message';
-import dayjs from 'dayjs';
-import FastImage from 'react-native-fast-image';
-import DateTimePicker from 'react-native-ui-datepicker';
+import { StyleSheet, Text, View } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { User, UserGender, UserInput, UserValidationSchema } from 'types/user';
-import APIManager from 'managers/APIManager';
-import { COLORS, FONTS, PROPS, SIZES } from 'common';
+import { COLORS, FONTS, icons, SIZES } from 'common';
+import { ProfileStackParamList } from 'navigation/ProfileNavigator';
 import BackButton from 'components/BackButton';
+import FastImage from 'react-native-fast-image';
+import { User } from 'types/user';
+import APIManager from 'managers/APIManager';
+import axios, { CancelTokenSource } from 'axios';
 import Icon, { IconType } from 'components/Icon';
-import FormInput from 'components/FormInput';
 import TextButton from 'components/TextButton';
+import AlertUtils from 'utils/AlertUtils';
+import UserManager from 'managers/UserManager';
+import HistoryLogin from './HistoryLogin';
 
-const AVATAR_SIZE = 80;
+const AVATAR_SIZE = 100;
 
-const ProfileScreen = () => {
-  const formRef = useRef<FormikProps<UserInput> | null>(null);
-  const [userData, setUserData] = useState<User | undefined>(undefined);
-  const [refreshing, setRefreshing] = useState(true);
-  const loading = useRef(false);
+type ProfileScreenProps = NativeStackScreenProps<
+  ProfileStackParamList,
+  'Profile'
+>;
+
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
+  const [data, setData] = useState<User | undefined>(undefined);
+  const [refreshing, setRefreshing] = useState(false);
+  const loading = useRef(true);
   const cancelTokenSource = useRef<CancelTokenSource | undefined>(undefined);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const cancelRequest = useCallback(() => {
     if (cancelTokenSource.current) {
@@ -35,7 +38,7 @@ const ProfileScreen = () => {
   const resetData = useCallback(() => {
     cancelRequest();
     loading.current = false;
-    setUserData(undefined);
+    setData(undefined);
     setRefreshing(true);
   }, [cancelRequest]);
 
@@ -52,17 +55,11 @@ const ProfileScreen = () => {
 
     cancelTokenSource.current = undefined;
     loading.current = false;
-    if (!response || !APIManager.isSucceed(response)) {
-      loading.current = false;
-      setRefreshing(false);
-      Toast.show({
-        type: 'error',
-        text1: 'Đã có lỗi xảy ra',
-      });
+    if (!response && !APIManager.isSucceed(response)) {
       return;
     }
-    setUserData(response.data);
-    formRef.current?.setValues(response.data as any);
+
+    setData(response?.data!);
     loading.current = false;
     setRefreshing(false);
   }, []);
@@ -80,156 +77,102 @@ const ProfileScreen = () => {
     };
   }, [refreshData, cancelRequest]);
 
-  const toggleCalendar = () => {
-    setIsCalendarOpen(!isCalendarOpen);
-  };
+  const handlePressUpdate = useCallback(() => {
+    navigation.navigate('User', { data, onSubmitSuccess: refreshData });
+  }, [data, navigation]);
 
-  const getUserGenderText = (gender: UserGender) => {
-    switch (gender) {
-      case UserGender.MALE:
-        return 'Nam';
-      case UserGender.FEMALE:
-        return 'Nữ';
-      case UserGender.OTHER:
-        return 'Khác';
-      default:
-        return 'Không xác định';
-    }
+  const handlePressLogout = () => {
+    AlertUtils.showCustom({
+      title: 'Đăng xuất',
+      description: 'Bạn có chắc chắn muốn đăng xuất?',
+      actions: [
+        {
+          label: 'Hủy',
+          style: 'cancel',
+        },
+        {
+          label: 'Đăng xuất',
+          onPress: UserManager.signOut,
+          style: 'destructive',
+        },
+      ],
+    });
   };
-
-  const renderCalendarIcon = () => (
-    <TouchableOpacity
-      activeOpacity={PROPS.touchable_active_opacity}
-      onPress={toggleCalendar}>
-      <Icon
-        type={IconType.ION}
-        name="calendar-outline"
-        size={30}
-        color={COLORS.netral_black}
-      />
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <BackButton title="Thông tin cá nhân" />
-      </View>
-      <View style={styles.profileContainer}>
-        <Formik
-          validationSchema={UserValidationSchema}
-          initialValues={{
-            firstName: userData?.firstName || '',
-            lastName: userData?.lastName || '',
-            birthDate: userData?.birthDate || dayjs().unix(),
-            gender: userData?.gender || UserGender.MALE,
-            email: userData?.email || '',
-            phone: userData?.phone || '',
-            avatar: userData?.avatar,
-          }}
-          innerRef={formRef}
-          onSubmit={() => {}}>
-          {({ handleChange, handleSubmit, values, errors }) => (
-            <View>
-              <View style={styles.row}>
-                {userData?.avatar ? (
-                  <FastImage
-                    source={{ uri: userData?.avatar }}
-                    style={styles.avatar}
-                  />
-                ) : (
-                  <Icon
-                    type={IconType.ION}
-                    name="person-circle"
-                    size={AVATAR_SIZE}
-                    color={COLORS.netral300}
-                  />
-                )}
-                <Text style={styles.username}>{userData?.username}</Text>
-              </View>
-              <View style={styles.row}>
-                <FormInput
-                  label="Họ"
-                  placeholder="Nguyễn Văn"
-                  value={values.firstName}
-                  style={styles.input}
-                  errorMessage={errors.firstName}
-                  onChangeText={handleChange('firstName')}
-                />
-                <FormInput
-                  label="Tên"
-                  placeholder="Anh"
-                  value={values.lastName}
-                  style={styles.input}
-                  errorMessage={errors.lastName}
-                  onChangeText={handleChange('lastName')}
-                />
-              </View>
-              <View style={styles.row}>
-                <FormInput
-                  label="Ngày sinh"
-                  placeholder="Chọn thời gian"
-                  editable={false}
-                  style={styles.input}
-                  value={dayjs.unix(values.birthDate).format('DD/MM/YYYY')}
-                  errorMessage={errors.birthDate}
-                  onChangeText={handleChange('birthDate')}
-                  appendComponent={renderCalendarIcon}
-                />
-                <View
-                  style={[styles.datePicker, !isCalendarOpen && styles.none]}>
-                  <DateTimePicker
-                    mode="single"
-                    timePicker
-                    selectedItemColor={COLORS.primary500}
-                    date={dayjs.unix(values.birthDate!)}
-                    onChange={props => {
-                      const date = dayjs(props.date).unix();
-                      handleChange('birthDate')(date.toString());
-                    }}
-                  />
-                  <TextButton
-                    style={{ backgroundColor: COLORS.warning500 }}
-                    label="Chọn"
-                    onPress={toggleCalendar}
-                  />
-                </View>
-                <FormInput
-                  label="Giới tính"
-                  placeholder="Chọn giới tính"
-                  style={styles.input}
-                  value={getUserGenderText(values.gender)}
-                  errorMessage={errors.gender}
-                />
-              </View>
-              <View style={styles.row}>
-                <FormInput
-                  label="Email"
-                  placeholder="abc@gmail.com"
-                  style={styles.input}
-                  value={values.email}
-                  errorMessage={errors.email}
-                  onChangeText={handleChange('email')}
-                />
-                <FormInput
-                  label="Số điện thoại"
-                  placeholder="09812345678"
-                  style={styles.input}
-                  value={values.phone}
-                  errorMessage={errors.phone}
-                  onChangeText={handleChange('phone')}
-                />
-              </View>
-            </View>
+      <BackButton title="Hồ sơ cá nhân" />
+      <View style={styles.body}>
+        <View style={[styles.card, styles.profile]}>
+          {data?.avatar ? (
+            <FastImage
+              source={{ uri: data.avatar as string }}
+              style={styles.avatar}
+            />
+          ) : (
+            <Icon
+              type={IconType.ION}
+              name="person-circle"
+              size={AVATAR_SIZE}
+              color={COLORS.netral300}
+            />
           )}
-        </Formik>
-        <View style={styles.actionBtn}>
-          <TextButton
-            label="Cập nhật thông tin"
-            disabled={refreshing}
-            onPress={() => formRef.current?.handleSubmit()}
-          />
+          <Text style={styles.name}>
+            {data?.firstName + ' ' + data?.lastName}
+          </Text>
+          <Text style={styles.role}>
+            {data?.roles.flatMap(r => r.name).join(' • ')}
+          </Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Tên tài khoản</Text>
+            <Text style={styles.value}>{data?.username}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Email</Text>
+            <Text style={styles.value}>{data?.email}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Số điện thoại</Text>
+            <Text style={styles.value}>{data?.phone}</Text>
+          </View>
+          <View style={styles.actions}>
+            <TextButton
+              label="Cập nhật thông tin"
+              onPress={handlePressUpdate}
+              type="secondary"
+              icon={{
+                type: IconType.ION,
+                name: 'person',
+                size: 24,
+                color: COLORS.netral_black,
+              }}
+            />
+            <TextButton
+              label="Đổi mật khẩu"
+              onPress={() => {}}
+              type="secondary"
+              icon={{
+                type: IconType.ION,
+                name: 'keypad',
+                size: 24,
+                color: COLORS.netral_black,
+              }}
+            />
+            <TextButton
+              label="Đăng xuất"
+              onPress={handlePressLogout}
+              type="primary"
+              style={styles.logoutBtn}
+              icon={{
+                type: IconType.ION,
+                name: 'log-out-outline',
+                size: 24,
+                color: COLORS.netral_white,
+              }}
+            />
+          </View>
         </View>
+        <HistoryLogin style={styles.card} />
       </View>
     </View>
   );
@@ -243,54 +186,64 @@ const styles = StyleSheet.create({
     padding: SIZES.padding,
     backgroundColor: COLORS.backgroundPrimary,
   },
-  header: {
-    width: '100%',
-  },
-  profileContainer: {
+  body: {
     flex: 1,
-    backgroundColor: COLORS.netral_white,
-    marginTop: SIZES.padding,
-    padding: SIZES.padding,
-    borderRadius: SIZES.radius,
-  },
-  row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    marginTop: SIZES.padding,
     gap: SIZES.padding,
+  },
+  card: {
+    backgroundColor: COLORS.netral_white,
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding,
+  },
+  profile: {
+    width: '35%',
+    alignItems: 'center',
   },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: 50,
+    borderRadius: AVATAR_SIZE / 2,
   },
-  username: {
+  name: {
     ...FONTS.title2,
+    marginTop: SIZES.base,
+  },
+  role: {
+    ...FONTS.body3,
+    color: COLORS.netral600,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SIZES.padding,
+  },
+  label: {
+    width: '40%',
+    textAlign: 'left',
+    ...FONTS.body3,
+    color: COLORS.netral600,
+  },
+  value: {
+    width: '60%',
+    textAlign: 'right',
+    ...FONTS.body3,
     color: COLORS.netral_black,
   },
-  input: {
-    flex: 1,
-  },
-  datePicker: {
-    position: 'absolute',
-    bottom: '50%',
-    right: 0,
-    zIndex: 1,
-    backgroundColor: COLORS.netral_white,
-    width: '50%',
-    padding: SIZES.radius,
-    borderRadius: 15,
-    shadowRadius: 20,
-    shadowColor: COLORS.netral_black,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  none: {
-    display: 'none',
-  },
-  actionBtn: {
-    flex: 1,
+  actions: {
     marginTop: SIZES.padding,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    width: '100%',
+    gap: SIZES.padding,
+    paddingVertical: SIZES.padding,
+    borderTopColor: COLORS.netral200,
+    borderTopWidth: 1,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+  },
+  logoutBtn: {
+    backgroundColor: COLORS.danger500,
   },
 });
