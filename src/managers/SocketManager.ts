@@ -1,7 +1,10 @@
 import { Store } from '@reduxjs/toolkit';
+import Config from 'react-native-config';
 import { io, Socket } from 'socket.io-client';
 
 import { AuthLogin } from 'types/auth';
+
+let SocketManagerLookup: Record<string, SocketManager> = {};
 
 interface SocketManagerOptions {
   namespace?: string;
@@ -16,12 +19,22 @@ class SocketManager {
 
   constructor(options: SocketManagerOptions) {
     this._namespace = options.namespace || '';
+    if (SocketManagerLookup[this._namespace]) {
+      return SocketManagerLookup[this._namespace];
+    }
+    SocketManagerLookup[this._namespace] = this;
   }
 
   static setToken = (token?: string) => {
     if (this.token === token) return;
 
     this.token = token;
+    for (const key in SocketManagerLookup) {
+      const socketManager = SocketManagerLookup[key];
+      if (!socketManager._isConnected()) continue;
+      socketManager.disconnect();
+      socketManager.connect();
+    }
   };
 
   static updateStore = (store: Store) => {
@@ -32,6 +45,18 @@ class SocketManager {
     const user = this.store.getState().user as AuthLogin;
 
     this.setToken(user?.tokens?.accessToken);
+    this._subscribeStore();
+  };
+
+  static signOut = () => {
+    for (const key in SocketManagerLookup) {
+      const socketManager = SocketManagerLookup[key];
+      if (!socketManager._isConnected()) continue;
+
+      SocketManagerLookup[key].disconnect();
+    }
+    SocketManagerLookup = {};
+    this.token = undefined;
   };
 
   connect = (query?: Record<string, any>) => {
@@ -84,8 +109,23 @@ class SocketManager {
   onDisconnect = (callback: () => void) => {
     this.on('disconnect', callback);
   };
+
+  _isConnected = () => {
+    return this._socket?.connected;
+  };
+
+  static _handleStoreChange = () => {
+    const user = this.store.getState().user as AuthLogin;
+    this.setToken(user?.tokens?.accessToken);
+  };
+
+  static _subscribeStore = () => {
+    if (!this.store) return;
+
+    this.store?.subscribe(this._handleStoreChange.bind(this));
+  };
 }
 
-SocketManager.baseUrl = 'http://localhost:3000';
+SocketManager.baseUrl = Config.API_BASE_URL!;
 
 export default SocketManager;
