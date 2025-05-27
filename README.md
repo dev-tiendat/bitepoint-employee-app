@@ -49,7 +49,7 @@ A modern restaurant ordering system designed to enhance customer experience and 
 
 ## 🖼️ Screenshots
 ### 📲 Mobile App - Customer
-(https://drive.google.com/file/d/10Rln2veFbbEPAWaGYdRvDbxZ6AZRxzuE/view?usp=share_link)
+(docs/images/customer1.png)
 ### 👨‍🍳 Mobile App - Staff
 
 
