@@ -51,10 +51,10 @@ A modern restaurant ordering system designed to enhance customer experience and 
 ### 👨‍🍳 Mobile App - Staff
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center">
     <img src="docs/images/employee1.png" width="400"/>
-    <img src="docs/images/employee1.png" width="400"/>
     <img src="docs/images/employee2.png" width="400"/>
     <img src="docs/images/employee3.png" width="400"/>
     <img src="docs/images/employee4.png" width="400"/>
+    <img src="docs/images/employee13.png" width="400"/>
     <img src="docs/images/employee5.png" width="400"/>
     <img src="docs/images/employee6.png" width="400"/>
     <img src="docs/images/employee7.png" width="400"/>
