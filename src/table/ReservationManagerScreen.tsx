@@ -25,7 +25,6 @@ import ReserveTableModalView from './ReserveTableModalView';
 
 import APIManager from 'managers/APIManager';
 import axios, { CancelTokenSource } from 'axios';
-import Toast from 'react-native-toast-message';
 import {
   Reservation,
   ReservationStatus,
@@ -38,6 +37,7 @@ import SocketManager from 'managers/SocketManager';
 import TextUtils from 'utils/TextUtils';
 import { OrderInfo } from 'types/order';
 import TableQRCodeModalView from './TableQRCodeModalView';
+import { useToast } from 'hooks/useToast';
 
 const routes = [
   { key: 'Pending', title: 'Đang chờ' },
@@ -68,6 +68,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
   const [refreshing, setRefreshing] = useState(false);
   const [reserveLoading, setReserveLoading] = useState(false);
   const cancelTokenSource = useRef<CancelTokenSource | undefined>(undefined);
+  const { showToast } = useToast();
 
   const cancelRequest = useCallback(() => {
     if (cancelTokenSource.current) {
@@ -113,10 +114,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
     if (!response || !APIManager.isSucceed(response)) {
       loading.current = false;
       setRefreshing(false);
-      Toast.show({
-        type: 'error',
-        text1: 'Đã có lỗi xảy ra',
-      });
+      showToast('Đã có lỗi xảy ra', 'error');
       return;
     }
 
@@ -179,21 +177,14 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
       cancelTokenSource.current = undefined;
       if (!APIManager.isSucceed(response)) {
         setReserveLoading(false);
-        Toast.show({
-          type: 'error',
-          text1: 'Đặt bàn thất bại',
-          text2: APIManager.passedMessageError(error),
-        });
+        showToast('Đã có lỗi xảy ra', 'error');
         return;
       }
 
       await refreshData();
       setReserveLoading(false);
       setIsReserveModalVisible(false);
-      Toast.show({
-        type: 'success',
-        text1: 'Đặt bàn thành công',
-      });
+      showToast('Đặt bàn thành công', 'success');
     },
     [refreshData, reserveLoading],
   );
@@ -207,10 +198,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
           tableIds,
         });
 
-        Toast.show({
-          type: 'success',
-          text1: 'Phân bàn thành công',
-        });
+        showToast('Phân bàn thành công', 'success');
         await refreshData();
       };
 
@@ -228,10 +216,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
     );
 
     if (!response || !APIManager.isSucceed(response)) {
-      Toast.show({
-        type: 'error',
-        text1: 'Đã có lỗi xảy ra',
-      });
+      showToast('Đã có lỗi xảy ra', 'error');
       return;
     }
 
