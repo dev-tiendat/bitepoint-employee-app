@@ -15,27 +15,23 @@ import { CssStyle } from 'types/style';
 
 type BackButtonProps = {
   style?: StyleProp<CssStyle>;
-  size?: number;
-  color?: string;
   title?: string;
 };
 
-const BackButton: React.FC<BackButtonProps> = ({
-  style,
-  size,
-  color,
-  title,
-}) => {
+const BackButton: React.FC<BackButtonProps> = ({ style, title }) => {
   const navigation = useNavigation();
+  const canGoBack = navigation.canGoBack();
 
   const handlePress = () => {
+    if (!canGoBack) return;
+
     navigation.goBack();
   };
 
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
-        style={[styles.button]}
+        style={[styles.button, !canGoBack && styles.none]}
         onPress={handlePress}
         activeOpacity={PROPS.touchable_active_opacity}>
         <Image source={icons.back} style={styles.icon} />
@@ -55,6 +51,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: SIZES.padding,
     width: 30,
     height: 30,
     padding: 24,
@@ -67,6 +64,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...FONTS.heading2,
-    marginLeft: SIZES.radius,
+  },
+  none: {
+    display: 'none',
   },
 });
