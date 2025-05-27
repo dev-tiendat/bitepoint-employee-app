@@ -1,4 +1,4 @@
-import React, { Suspense, useLayoutEffect, useRef, useState } from 'react';
+import React, { Suspense, useRef, useState, useEffect } from 'react';
 import {
   FlatList,
   LayoutChangeEvent,
@@ -19,19 +19,16 @@ import NotificationModalView from 'notification/NotificationModalView';
 
 import { useAppDispatch, useAppSelector } from 'store/hooks';
 import { selectUserInfo } from 'store/user/userSelector';
-import { logout } from 'store/user/userSlice';
 import { selectIsMinimizedMenu } from 'store/device/deviceSelector';
 import { toggleSideBar } from 'store/device/deviceSlice';
 
 import { COLORS, COMMON_STYLES, FONTS, PROPS, SIZES } from 'common';
-import APIManager from 'managers/APIManager';
 import { Menu } from 'types/menu';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useEffect } from 'react';
 import AlertUtils from 'utils/AlertUtils';
 import UserManager from 'managers/UserManager';
 
