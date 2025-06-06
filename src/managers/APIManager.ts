@@ -61,6 +61,8 @@ class APIManager {
     const user = this._store.getState().user as AuthLogin;
 
     this.setAccessToken(user?.tokens?.accessToken);
+    this.setRefreshToken(user?.tokens?.refreshToken);
+    
     this._subscribeToken();
   };
 
