@@ -1,5 +1,4 @@
 import axios, {
-  CancelToken,
   CancelTokenSource,
   Method,
   RawAxiosRequestHeaders,
@@ -24,13 +23,14 @@ class APIManager {
   private _accessToken?: string;
   private _refreshToken?: string;
   private _store?: Store;
-  private _refreshingTokenPromise: Promise<void> | null = null;
-  private _cancelAllRequests = false;
-  private _criticalError: string | null = null;
-  private _pendingRequestCancelTokens: CancelTokenSource[] = [];
+  private _refreshingTokenPromise?: Promise<void> | null = null;
+  private _handlingCriticalError: boolean;
+  private _pendingRequestCancelTokens: CancelTokenSource[];
 
   constructor(bareUrl: string) {
     this._baseUrl = bareUrl;
+    this._handlingCriticalError = false;
+    this._pendingRequestCancelTokens = [];
   }
 
   isAuthenticated = () => {
@@ -67,30 +67,51 @@ class APIManager {
   GET = async <T>(
     path: string,
     params?: Record<string, any> | undefined,
-    cancelToken?: CancelTokenSource | undefined,
+    cancelTokenSource?: CancelTokenSource | undefined,
   ): Promise<APIGenericResponse<T>> =>
-    this.request<T>('GET', path, undefined, params, undefined, cancelToken);
+    this.request<T>(
+      'GET',
+      path,
+      undefined,
+      params,
+      undefined,
+      cancelTokenSource,
+    );
 
   POST = async <T>(
     path: string,
     data?: any,
-    cancelToken?: CancelTokenSource | undefined,
+    cancelTokenSource?: CancelTokenSource | undefined,
   ): Promise<APIGenericResponse<T>> =>
-    this.request<T>('POST', path, undefined, undefined, data, cancelToken);
+    this.request<T>(
+      'POST',
+      path,
+      undefined,
+      undefined,
+      data,
+      cancelTokenSource,
+    );
 
   PUT = async <T>(
     path: string,
     data?: any,
-    cancelToken?: CancelTokenSource | undefined,
+    cancelTokenSource?: CancelTokenSource | undefined,
   ): Promise<APIGenericResponse<T>> =>
-    this.request<T>('PUT', path, undefined, undefined, data, cancelToken);
+    this.request<T>('PUT', path, undefined, undefined, data, cancelTokenSource);
 
   DELETE = async <T>(
     path: string,
     data?: any,
-    cancelToken?: CancelTokenSource | undefined,
+    cancelTokenSource?: CancelTokenSource | undefined,
   ): Promise<APIGenericResponse<T>> =>
-    this.request<T>('DELETE', path, undefined, undefined, data, cancelToken);
+    this.request<T>(
+      'DELETE',
+      path,
+      undefined,
+      undefined,
+      data,
+      cancelTokenSource,
+    );
 
   request = async <T>(
     method: Method,
@@ -98,13 +119,14 @@ class APIManager {
     headers?: RawAxiosRequestHeaders,
     params?: Record<string, any> | undefined,
     data?: any,
-    cancelToken?: CancelTokenSource | undefined,
+    cancelTokenSource?: CancelTokenSource | undefined,
   ): Promise<APIGenericResponse<T>> => {
-    if (!isNil(cancelToken)) {
-      
-    }
-    const source = axios.CancelToken.source();
-    this._pendingRequestCancelTokens.push(source);
+    if (isNil(cancelTokenSource))
+      cancelTokenSource = axios.CancelToken.source();
+    this._pendingRequestCancelTokens.push(cancelTokenSource);
+
+    if (this._refreshingTokenPromise) await this._refreshingTokenPromise;
+
     try {
       const url = startsWith(path, 'http') ? path : `${this._baseUrl}${path}`;
 
@@ -132,47 +154,29 @@ class APIManager {
           headers,
           params,
           data,
-          cancelToken,
+          cancelToken: cancelTokenSource.token,
         });
 
       let rawResponse = await fetchData();
 
-      switch (rawResponse.data.code) {
-        case ErrorCode.ACCESS_TOKEN_EXPIRED:
-          if (!this._refreshingTokenPromise) {
-            this._refreshingTokenPromise = this._fetchNewToken().finally(() => {
-              this._refreshingTokenPromise = undefined;
-            });
-          }
-          await this._refreshingTokenPromise;
-          rawResponse = await fetchData();
-          break;
-        case ErrorCode.PASSWORD_CHANGED:
-          if (!this._handlingErrorPromise) {
-            this._handlingErrorPromise = (async () => {
-              AlertUtils.showCustom({
-                title: 'Xác thực',
-                description:
-                  'Mật khẩu đã được thay đổi ở nơi khác, vui lòng đăng nhập lại',
-                actions: [
-                  {
-                    label: 'Đăng nhập lại',
-                    onPress: UserManager.clearUserSession,
-                    style: 'primary',
-                  },
-                ],
-              });
-              await new Promise(resolve => setTimeout(resolve, 100));
-              this._handlingErrorPromise = null;
-            })();
-          }
-          await this._handlingErrorPromise;
+      if (ErrorCode.ACCESS_TOKEN_EXPIRED === rawResponse.data.code) {
+        if (!this._refreshingTokenPromise) {
+          this._refreshingTokenPromise = this._fetchNewToken().finally(() => {
+            this._refreshingTokenPromise = undefined;
+          });
+        }
+        await this._refreshingTokenPromise;
+        rawResponse = await fetchData();
       }
+      this._handleCriticalAuthError(rawResponse.data.code);
+
       const response = rawResponse.data;
 
       return { response };
     } catch (error) {
       return { error };
+    } finally {
+      this._removePendingToken(cancelTokenSource);
     }
   };
 
@@ -216,24 +220,64 @@ class APIManager {
       { refreshToken: this._refreshToken },
     );
 
-    if (response?.code === ErrorCode.REFRESH_TOKEN_EXPIRED) {
-      AlertUtils.showCustom({
-        title: 'Xác thực',
-        description: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại',
-        actions: [
-          {
-            label: 'Đăng nhập lại',
-            onPress: UserManager.clearUserSession,
-            style: 'primary',
-          },
-        ],
-      });
-      throw new Error('Refresh token expired');
-    }
+    this._handleCriticalAuthError(response?.code);
 
     this.setAccessToken(response?.data);
     this._store?.dispatch(updateToken(response?.data!));
   }
+
+  _handleCriticalAuthError = (error?: ErrorCode) => {
+    if (this._handlingCriticalError || !error) return;
+
+    const criticalErrors = [
+      ErrorCode.REFRESH_TOKEN_EXPIRED,
+      ErrorCode.PASSWORD_CHANGED,
+    ];
+    if (!criticalErrors.includes(error)) return;
+
+    this._handlingCriticalError = true;
+    this._cancelAllPendingRequests();
+
+    let message = '';
+    switch (error) {
+      case ErrorCode.REFRESH_TOKEN_EXPIRED:
+        message = 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.';
+        break;
+      case ErrorCode.PASSWORD_CHANGED:
+        message = 'Mật khẩu đã thay đổi, vui lòng đăng nhập lại.';
+        break;
+      default:
+        message = 'Đã xảy ra lỗi xác thực.';
+    }
+
+    AlertUtils.showCustom({
+      title: 'Lỗi xác thực',
+      description: message,
+      actions: [
+        {
+          label: 'Đăng nhập lại',
+          onPress: () => {
+            UserManager.clearUserSession();
+            this._handlingCriticalError = false;
+          },
+          style: 'primary',
+        },
+      ],
+    });
+
+    throw new Error('Critical auth error');
+  };
+
+  _cancelAllPendingRequests = () => {
+    this._pendingRequestCancelTokens.forEach(token => token.cancel());
+    this._pendingRequestCancelTokens = [];
+  };
+
+  private _removePendingToken = (token: CancelTokenSource) => {
+    this._pendingRequestCancelTokens = this._pendingRequestCancelTokens.filter(
+      t => t !== token,
+    );
+  };
 
   _handleStateChange = () => {
     const user = this._store?.getState().user as AuthLogin;
@@ -243,7 +287,9 @@ class APIManager {
   };
 
   _subscribeToken = () => {
-    this._store?.subscribe(this._handleStateChange.bind(this));
+    if (!this._store) return;
+
+    this._store.subscribe(this._handleStateChange.bind(this));
   };
 }
 
