@@ -53,6 +53,8 @@ const OrderManagerScreen: React.FC<OrderManagerScreenProps> = ({
     cancelTokenSource.current = axios.CancelToken.source();
     const { response, error } = await APIManager.GET<Order[]>(
       '/api/v1/orders',
+      undefined,
+      cancelTokenSource.current,
     );
 
     if (axios.isCancel(error)) return;

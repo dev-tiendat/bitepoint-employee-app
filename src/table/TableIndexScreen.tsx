@@ -89,7 +89,7 @@ const TableIndexScreen: React.FC<TableIndexScreenProps> = ({
     const { response, error } = await APIManager.GET<TableHome[]>(
       `/api/v1/table-zones/tables`,
       undefined,
-      cancelTokenSource.current.token,
+      cancelTokenSource.current,
     );
 
     if (axios.isCancel(error)) return;

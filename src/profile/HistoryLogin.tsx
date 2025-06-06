@@ -84,7 +84,7 @@ const HistoryLogin: React.FC<HistoryLoginProps> = ({ style }) => {
       >(
         '/api/v1/account/login-logs',
         { page: newPage, limit: newLimit, field: newField, order: newOrder },
-        cancelTokenSource.current.token,
+        cancelTokenSource.current,
       );
 
       if (axios.isCancel(error)) return;

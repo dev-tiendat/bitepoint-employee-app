@@ -39,6 +39,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
     cancelTokenSource.current = axios.CancelToken.source();
     const { response, error } = await APIManager.GET<Statistics>(
       '/api/v1/statistics',
+      undefined,
+      cancelTokenSource.current,
     );
 
     if (axios.isCancel(error)) return;

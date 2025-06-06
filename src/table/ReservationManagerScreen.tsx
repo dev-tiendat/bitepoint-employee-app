@@ -105,6 +105,8 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
     cancelTokenSource.current = axios.CancelToken.source();
     const { response, error } = await APIManager.GET<Reservation[]>(
       '/api/v1/reservations',
+      undefined,
+      cancelTokenSource.current,
     );
 
     if (axios.isCancel(error)) return;
@@ -171,7 +173,7 @@ const ReservationManagerScreen: React.FC<ReservationManagerScreenProps> = ({
       const { response, error } = await APIManager.POST(
         '/api/v1/reservations',
         data,
-        cancelTokenSource.current.token,
+        cancelTokenSource.current,
       );
 
       cancelTokenSource.current = undefined;

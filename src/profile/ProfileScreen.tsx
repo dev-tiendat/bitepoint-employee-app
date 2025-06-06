@@ -49,6 +49,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     cancelTokenSource.current = axios.CancelToken.source();
     const { response, error } = await APIManager.GET<User>(
       '/api/v1/account/profile',
+      undefined,
+      cancelTokenSource.current,
     );
 
     if (axios.isCancel(error)) return;
