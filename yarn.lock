@@ -2101,6 +2101,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-22.2.0.tgz#0f2fcce3114702e23ae8d4a25b2c42d132656c2e"
   integrity sha512-bAkVKcXTcFyqXsVw2cgOk0pX8yW1IpQd3+CeLBywB1/L56lIk3e2giGuTqDjw2sspRbSRu/JOMU4YEZ/8/+7rA==
 
+"@react-native-firebase/perf@^22.2.0":
+  version "22.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/perf/-/perf-22.2.0.tgz#51af263497e2eabf3383ac212dfba685692d5e8e"
+  integrity sha512-ib17c+J8nYkUbAFzWEPT1ScEesldnPq8GGuJGILRG30NLsXGdvOxBs4kPk74hFp1DgBFFx/RrXjH3FwtZ3VVfw==
+
 "@react-native-vector-icons/common@^11.0.0":
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-vector-icons/common/-/common-11.0.0.tgz#c3b2d1220b2d7869564c77312691e234e32ab413"

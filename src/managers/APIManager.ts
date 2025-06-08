@@ -1,10 +1,13 @@
 import axios, {
+  AxiosResponse,
   CancelTokenSource,
+  InternalAxiosRequestConfig,
   Method,
   RawAxiosRequestHeaders,
 } from 'axios';
+import perf from '@react-native-firebase/perf';
 import { Store } from '@reduxjs/toolkit';
-import { isEmpty, isNil, startsWith } from 'lodash';
+import { isEmpty, isNil, startsWith, toUpper } from 'lodash';
 import { Config } from 'react-native-config';
 
 import { ErrorCode } from 'common';
@@ -23,14 +26,21 @@ class APIManager {
   private _accessToken?: string;
   private _refreshToken?: string;
   private _store?: Store;
+  private _username?: string;
   private _refreshingTokenPromise?: Promise<void> | null = null;
   private _handlingCriticalError: boolean;
   private _pendingRequestCancelTokens: CancelTokenSource[];
+  private _requestInterceptorId?: number;
+  private _responseInterceptorId?: number;
 
   constructor(bareUrl: string) {
     this._baseUrl = bareUrl;
     this._handlingCriticalError = false;
     this._pendingRequestCancelTokens = [];
+  }
+
+  initialize() {
+    this._setupPerf();
   }
 
   isAuthenticated = () => {
@@ -62,7 +72,7 @@ class APIManager {
 
     this.setAccessToken(user?.tokens?.accessToken);
     this.setRefreshToken(user?.tokens?.refreshToken);
-    
+
     this._subscribeToken();
   };
 
@@ -281,8 +291,70 @@ class APIManager {
     );
   };
 
+  _interceptRequest = async (config: InternalAxiosRequestConfig<any>) => {
+    const httpMetric = perf().newHttpMetric(
+      config.url!,
+      toUpper(config.method) as any,
+    );
+    // @ts-ignore
+    config.metadata = { httpMetric };
+    if (this._username) {
+      httpMetric.putAttribute('username', this._username);
+    }
+    await httpMetric.start();
+    return config;
+  };
+
+  _interceptSucceedResponse = async (response: AxiosResponse<any, any>) => {
+    // @ts-ignore
+    const { httpMetric } = response.config.metadata;
+    if (this._username) {
+      httpMetric.putAttribute('username', this._username);
+    }
+    httpMetric.setHttpResponseCode(response.status);
+    httpMetric.setResponseContentType(response.headers['content-type']);
+    await httpMetric.stop();
+
+    return response;
+  };
+
+  _interceptFailedResponse = async (error: any) => {
+    const { httpMetric } = error.config.metadata;
+    if (this._username) {
+      httpMetric.putAttribute('username', this._username);
+    }
+    httpMetric.setHttpResponseCode(error.response.status);
+    httpMetric.setResponseContentType(error.response.headers['content-type']);
+    await httpMetric.stop();
+
+    return Promise.reject(error);
+  };
+
+  _setupPerf = () => {
+    if (__DEV__) {
+      return;
+    }
+    if (this._requestInterceptorId) {
+      axios.interceptors.request.eject(this._requestInterceptorId);
+      this._requestInterceptorId = undefined;
+    }
+    this._requestInterceptorId = axios.interceptors.request.use(
+      this._interceptRequest,
+    );
+
+    if (this._responseInterceptorId) {
+      axios.interceptors.response.eject(this._responseInterceptorId);
+      this._responseInterceptorId = undefined;
+    }
+    this._responseInterceptorId = axios.interceptors.response.use(
+      this._interceptSucceedResponse,
+      this._interceptFailedResponse,
+    );
+  };
+
   _handleStateChange = () => {
     const user = this._store?.getState().user as AuthLogin;
+    this._username = user?.username;
 
     this.setAccessToken(user?.tokens?.accessToken);
     this.setRefreshToken(user?.tokens?.refreshToken);

@@ -18,6 +18,7 @@ if (__DEV__) {
 }
 
 LibraryUtils.initialize();
+APIManager.initialize();
 NotificationManager.initialize();
 
 export const persistor = configurePersistor(() => {

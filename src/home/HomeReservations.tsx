@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emptyText: {
-    ...FONTS.body3,
+    ...FONTS.body4,
     color: COLORS.netral600,
   },
 });
