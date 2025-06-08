@@ -8,3 +8,7 @@ export enum ErrorCode {
   VOUCHER_NOT_FOUND = 1201,
   VOUCHER_EXPIRED = 1202,
 }
+
+export const StorageKey = {
+  FCM_TOKEN: 'fcm_token',
+};

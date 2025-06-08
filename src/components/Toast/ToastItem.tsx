@@ -20,7 +20,7 @@ export type ToastItemProps = {
   title?: string;
   duration?: number;
   autoHide?: boolean;
-  type?: 'success' | 'error' | 'info' | 'warning';
+  type?: 'success' | 'error' | 'info' | 'warning' | 'notification';
   index: number;
   onHide?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -118,6 +118,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
     if (type === 'success') iconName = 'checkmark';
     else if (type === 'error') iconName = 'close';
     else if (type === 'warning') iconName = 'alert';
+    else if (type === 'notification') iconName = 'notifications';
     return (
       <Icon
         type={IconType.ION}

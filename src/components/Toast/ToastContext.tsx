@@ -5,28 +5,50 @@ import ToastItem from './ToastItem';
 const DEFAULT_DURATION = 3000;
 const MemoToastItem = memo(ToastItem);
 
-export type ToastContextType = {
-  showToast: (
-    message: string,
-    type?: 'success' | 'error' | 'warning' | 'info',
-    title?: string,
-    duration?: number,
-    autoHide?: boolean,
-  ) => void;
-  hideToast: (id: string) => void;
-  hideAllToast: () => void;
-};
+type ShowToastType = (
+  message: string,
+  type?: 'success' | 'error' | 'warning' | 'info' | 'notification',
+  title?: string,
+  duration?: number,
+  autoHide?: boolean,
+) => void;
 
 type Toast = {
   id: string;
   message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: 'success' | 'error' | 'warning' | 'info' | 'notification';
   duration: number;
   title?: string;
   autoHide?: boolean;
 };
 
+export type ToastContextType = {
+  showToast: ShowToastType;
+  hideToast: (id: string) => void;
+  hideAllToast: () => void;
+};
+
 export type ToastProviderType = { children: React.ReactNode };
+
+let showToastRef: ShowToastType | null = null;
+
+export const setShowToast = (fn: ShowToastType) => {
+  showToastRef = fn;
+};
+
+export const showToast = (
+  message: string,
+  type?: 'success' | 'error' | 'warning' | 'info' | 'notification',
+  title?: string,
+  duration?: number,
+  autoHide?: boolean,
+) => {
+  if (showToastRef) {
+    showToastRef(message, type, title, duration, autoHide);
+  } else {
+    console.warn('showToast called before it was initialized');
+  }
+};
 
 export const ToastContext = createContext<ToastContextType | undefined>(
   undefined,
@@ -38,7 +60,7 @@ export const ToastProvider: React.FC<ToastProviderType> = ({ children }) => {
   const showToast = useCallback(
     (
       message: string,
-      type: 'success' | 'error' | 'warning' | 'info' = 'info',
+      type: 'success' | 'error' | 'warning' | 'info' | 'notification' = 'info',
       title?: string,
       duration = DEFAULT_DURATION,
       autoHide = true,
@@ -63,6 +85,10 @@ export const ToastProvider: React.FC<ToastProviderType> = ({ children }) => {
   const hideAllToast = useCallback(() => {
     setToasts([]);
   }, []);
+
+  React.useEffect(() => {
+    setShowToast(showToast);
+  }, [showToast]);
 
   const renderItem = (toast: Toast, index: number) => (
     <MemoToastItem

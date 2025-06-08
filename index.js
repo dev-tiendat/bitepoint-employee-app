@@ -18,12 +18,15 @@ if (__DEV__) {
 }
 
 LibraryUtils.initialize();
+NotificationManager.initialize();
 
 export const persistor = configurePersistor(() => {
   APIManager.updateStore(store);
   NotificationManager.updateStore(store);
   SocketManager.updateStore(store);
   UserManager.updateStore(store);
+
+  NotificationManager.start();
 });
 
 AppRegistry.registerComponent(appName, () => App);

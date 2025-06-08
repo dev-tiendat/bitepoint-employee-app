@@ -5,6 +5,8 @@ import APIManager from './APIManager';
 import { logout, updateProfileInfo } from 'store/user/userSlice';
 import SocketManager from './SocketManager';
 import { navigationRef } from 'navigation/AppNavigator';
+import StorageUtils from 'utils/StorageUtils';
+import { StorageKey } from 'common';
 
 class UserManager {
   private _store?: Store;
@@ -19,12 +21,16 @@ class UserManager {
     this._subscribeStore();
   };
 
-  clearUserSession = () => {
+  clearUserSession = async () => {
     this._token = undefined;
-    
+
     this._store?.dispatch(logout());
     APIManager.signOut();
     SocketManager.signOut();
+
+    try {
+      await StorageUtils.removeItem(StorageKey.FCM_TOKEN);
+    } catch (error) {}
 
     this._resetToLogin();
   };
@@ -32,7 +38,13 @@ class UserManager {
   signOut = async () => {
     if (!this._token) return;
 
-    await APIManager.POST<AuthLogin>('/api/v1/account/logout', {});
+    const formData = new FormData();
+    const fcmToken = await StorageUtils.getItem(StorageKey.FCM_TOKEN);
+    if (fcmToken) {
+      formData.append('fcm_token', fcmToken);
+    }
+
+    await APIManager.POST<AuthLogin>('/api/v1/account/logout', formData);
     this.clearUserSession();
   };
 

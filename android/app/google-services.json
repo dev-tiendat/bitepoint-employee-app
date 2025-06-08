@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "916848423539",
+    "project_id": "bitepoint-3eca9",
+    "storage_bucket": "bitepoint-3eca9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:916848423539:android:43532009b5b43b6fd73006",
+        "android_client_info": {
+          "package_name": "com.employeeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYqKd0GRsWMOwwUn2xe1oC52NYMvh4gws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,6 +13,7 @@ import DrawerNavigator, { DrawerParamList } from './DrawerNavigator';
 import AuthNavigator, { AuthStackParamList } from './AuthNavigator';
 import ProfileNavigator, { ProfileStackParamList } from './ProfileNavigator';
 import NavigationAlert, { NavigationAlertParams } from './NavigationAlert';
+import NotificationManager from 'managers/NotificationManager';
 
 export type AppStackParamList = {
   AuthNavigator: NavigatorScreenParams<AuthStackParamList>;
@@ -34,6 +35,12 @@ const AppNavigator = (): React.ReactElement => {
       hideAllToast();
     });
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      NotificationManager.initializeFCM();
+    }
+  }, [isAuthenticated]);
 
   return (
     <NavigationContainer ref={navigationRef}>

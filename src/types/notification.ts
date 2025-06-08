@@ -9,10 +9,15 @@ export enum NotificationType {
   RESERVATION_CANCELED = 'reservation.canceled',
 }
 
+export type UnreadNotification = {
+  unread: number;
+};
+
 export type Notification = {
   id: string;
   title: string;
   message: string;
+  uri?: string;
   type: NotificationType;
   readAt: Date;
   createdAt: number;
